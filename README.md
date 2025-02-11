@@ -12,4 +12,6 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Desktop.
 
 [mupdf-jvm](mupdf-jvm)
 
+To compile native libraries run [build.sh](build.sh)
+
 
