@@ -1,0 +1,64 @@
+package = libmupdf
+headers = \
+mupdf/fitz/version.h \
+mupdf/fitz/archive.h \
+mupdf/fitz/band-writer.h \
+mupdf/fitz/bidi.h \
+mupdf/fitz/bitmap.h \
+mupdf/fitz/buffer.h \
+mupdf/fitz/color.h \
+mupdf/fitz/compress.h \
+mupdf/fitz/compressed-buffer.h \
+mupdf/fitz/config.h \
+mupdf/fitz/context.h \
+mupdf/fitz/crypt.h \
+mupdf/fitz/device.h \
+mupdf/fitz/display-list.h \
+mupdf/fitz/document.h \
+mupdf/fitz/export.h \
+mupdf/fitz/filter.h \
+mupdf/fitz/font.h \
+mupdf/fitz/geometry.h \
+mupdf/fitz/getopt.h \
+mupdf/fitz/glyph-cache.h \
+mupdf/fitz/glyph.h \
+mupdf/fitz/hash.h \
+mupdf/fitz/image.h \
+mupdf/fitz/link.h \
+mupdf/fitz/log.h \
+mupdf/fitz/outline.h \
+mupdf/fitz/output-svg.h \
+mupdf/fitz/output.h \
+mupdf/fitz/path.h \
+mupdf/fitz/pixmap.h \
+mupdf/fitz/pool.h \
+mupdf/fitz/separation.h \
+mupdf/fitz/shade.h \
+mupdf/fitz/store.h \
+mupdf/fitz/story-writer.h \
+mupdf/fitz/story.h \
+mupdf/fitz/stream.h \
+mupdf/fitz/string-util.h \
+mupdf/fitz/structured-text.h \
+mupdf/fitz/system.h \
+mupdf/fitz/text.h \
+mupdf/fitz/track-usage.h \
+mupdf/fitz/transition.h \
+mupdf/fitz/tree.h \
+mupdf/fitz/types.h \
+mupdf/fitz/util.h \
+mupdf/fitz/version.h \
+mupdf/fitz/write-pixmap.h \
+mupdf/fitz/writer.h \
+mupdf/fitz/xml.h
+
+staticLibraries = libmupdf.a libmupdf-third.a
+
+libraryPaths.osx = libs/mupdf.xcframework/macos-arm64
+libraryPaths.ios = libs/mupdf.xcframework/ios-arm64
+libraryPaths.ios_simulator_arm64 = libs/mupdf.xcframework/ios-arm64-simulator
+libraryPaths = libs/mupdf.xcframework/ios-arm64-simulator
+
+
+compilerOpts =-Ilibs/mupdf.xcframework/ios-arm64-simulator/Headers
+linkerOpts =-Llibs/mupdf.xcframework/ios-arm64-simulator/Headers
