@@ -11,6 +11,5 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Desktop.
 [mupdf-ios](mupdf-ios)
 
 [mupdf-jvm](mupdf-jvm)
-[mupdf-jvm](mupdf-jvm)
 
 
