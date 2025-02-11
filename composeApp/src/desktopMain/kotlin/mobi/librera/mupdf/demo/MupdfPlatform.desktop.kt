@@ -10,14 +10,25 @@ import com.artifex.mupdf.fitz.Matrix
 import com.artifex.mupdf.fitz.Pixmap
 import java.awt.image.BufferedImage
 
-internal actual fun getMupdfPlatform(): MupdfPlatform  = MupdfDesktop()
+internal actual fun getMupdfPlatform(): MupdfPlatform = MupdfDesktop()
 
-class MupdfDesktop:MupdfPlatform{
-    override val version: String = Context.getVersion().version
+class MyDocument(document: ByteArray) : MupdfDocument {
 
-    override fun renderPage(document: ByteArray, page: Int): ImageBitmap {
-        val doc = Document.openDocument(document, "")
-        val loadPage = doc.loadPage(page)
+    private val muDocument: Document = Document.openDocument(document, "pdf")
+
+    override val pageCount: Int
+        get() = muDocument.countPages()
+
+    override val title: String
+        get() = muDocument.getMetaData(Document.META_INFO_TITLE)
+
+
+    override fun renderPage(page: Int): ImageBitmap {
+        return renderPage(page, -1)
+    }
+
+    override fun renderPage(page: Int, width: Int): ImageBitmap {
+        val loadPage = muDocument.loadPage(page)
         val scale = Matrix().scale(1.0f)
         val pixmap: Pixmap = loadPage.toPixmap(scale, ColorSpace.DeviceBGR, true, true)
         pixmap.clear(255)
@@ -31,12 +42,25 @@ class MupdfDesktop:MupdfPlatform{
         val image = BufferedImage(pixmap.width, pixmap.height, BufferedImage.TYPE_INT_ARGB)
         image.setRGB(0, 0, pixmap.width, pixmap.height, pixels, 0, pixmap.width)
 
-
         pixmap.destroy()
-
-
 
         return image.toComposeImageBitmap()
     }
+
+    override fun close() {
+        muDocument.destroy()
+    }
+
+}
+
+
+class MupdfDesktop : MupdfPlatform {
+
+    override val version: String = Context.getVersion().version
+
+    override fun openDocument(document: ByteArray): MyDocument {
+        return MyDocument(document)
+    }
+
 
 }
