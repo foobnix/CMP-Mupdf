@@ -16,7 +16,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         //iosX64(),
         iosArm64(),
@@ -28,21 +28,33 @@ kotlin {
             linkerOpts.add("-Xbinary=bundleId=moli.librera.mupdf")
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
-        val desktopMain by getting
+        //val desktopMain by getting
+
+        val mupdfMain by creating {
+            dependencies {
+                //implementation("net.java.dev.jna:jna:5.15.0")
+                implementation("net.java.dev.jna:jna:5.15.0@aar")
+            }
+        }
 
         iosMain.dependencies {
             implementation(project(":mupdf-ios"))
         }
-        
-        androidMain.dependencies {
-            implementation("net.java.dev.jna:jna:5.15.0@aar")
-            implementation(project(":mupdf-android"))
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
+
+        val androidMain by getting {
+            dependsOn(mupdfMain)
+            dependencies {
+                //implementation("net.java.dev.jna:jna:5.15.0@aar")
+
+
+                implementation(project(":mupdf-android"))
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+            }
         }
         commonMain.dependencies {
 
@@ -58,16 +70,21 @@ kotlin {
         jvmMain.dependencies {
 
         }
-        desktopMain.dependencies {
-            implementation(project(":mupdf-jvm"))
-            implementation("net.java.dev.jna:jna:5.15.0")
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
+        val desktopMain by getting {
+            dependsOn(mupdfMain)
+
+            dependencies {
+                implementation("net.java.dev.jna:jna:5.15.0")
+                implementation(project(":mupdf-jvm"))
+                //implementation("net.java.dev.jna:jna:5.15.0")
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
+            }
         }
     }
 }
 tasks.withType<JavaExec> {
-   systemProperty("java.library.path", "../mupdf-jvm/libs")
+    systemProperty("java.library.path", "../mupdf-jvm/libs")
 }
 
 
