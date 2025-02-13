@@ -1,8 +1,21 @@
+
 package mobi.librera.mupdf.demo.fz.lib
 
 import androidx.compose.ui.graphics.ImageBitmap
 
 internal expect fun openDocument(document: ByteArray): MuDoc
+
+
+expect object Logger {
+    fun debug(message: String)
+    fun info(message: String)
+    fun warn(message: String)
+    fun error(message: String)
+}
+
+object FZ {
+    val FZ_VERSION = "1.25.4"
+}
 
 interface MuDoc {
     val pageCount: Int

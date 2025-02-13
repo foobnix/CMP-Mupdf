@@ -20,6 +20,5 @@ fun main() = application {
         )
     ) {
         App()
-        //MyDocument2("".toByteArray()).renderPage(0)
     }
 }

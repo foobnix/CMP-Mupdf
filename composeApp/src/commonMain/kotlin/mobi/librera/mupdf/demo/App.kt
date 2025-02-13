@@ -32,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import mobi.librera.mupdf.demo.fz.lib.FZ
+import mobi.librera.mupdf.demo.fz.lib.Logger
 import mobi.librera.mupdf.demo.fz.lib.MuDoc
 import mobi.librera.mupdf.demo.fz.lib.openDocument
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -41,6 +43,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun App() {
+    Logger.debug("Start Application")
     MaterialTheme {
 
         Column(
@@ -49,10 +52,9 @@ fun App() {
 
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            val mupdf by remember { mutableStateOf(getMupdfPlatform()) }
 
             Text(
-                "Mupdf Version: ${mupdf.version}",
+                "Mupdf Version: ${FZ.FZ_VERSION}",
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.align(alignment = Alignment.Start),
             )

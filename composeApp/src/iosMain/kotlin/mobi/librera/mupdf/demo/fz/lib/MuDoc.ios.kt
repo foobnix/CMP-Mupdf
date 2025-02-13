@@ -8,6 +8,7 @@ import org.jetbrains.skia.Data
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Pixmap
+import platform.Foundation.NSLog
 
 internal actual fun openDocument(document: ByteArray): MuDoc {
     val common = CommonLib(document)
@@ -31,5 +32,24 @@ internal actual fun openDocument(document: ByteArray): MuDoc {
         override fun close() {
             common.close()
         }
+    }
+}
+
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+actual object Logger {
+    actual fun debug(message: String) {
+        NSLog("debug: [$message]")
+    }
+
+    actual fun info(message: String) {
+        NSLog("INFO: $message")
+    }
+
+    actual fun warn(message: String) {
+        NSLog("WARN: $message")
+    }
+
+    actual fun error(message: String) {
+        NSLog("ERROR: $message")
     }
 }

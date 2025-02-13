@@ -13,7 +13,6 @@ import kotlinx.cinterop.readValue
 import kotlinx.cinterop.refTo
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
-import libmupdf.FZ_VERSION
 import libmupdf.fz_bound_page
 import libmupdf.fz_clear_pixmap_with_value
 import libmupdf.fz_close_device
@@ -47,11 +46,10 @@ class CommonLib(document: ByteArray) {
     private var fzDocument: CPointer<fz_document>? = null;
     var fzPagesCount: Int = 0
     var fzTitle: String = "title"
-    var fzMupdfVersion: String = "1.25.4"
 
     init {
         memScoped {
-            fzContext = fz_new_context_imp(null, null, 1000u, FZ_VERSION)
+            fzContext = fz_new_context_imp(null, null, 1000u, FZ.FZ_VERSION)
             fz_register_document_handlers(fzContext)
             val stream =
                 fz_open_memory(

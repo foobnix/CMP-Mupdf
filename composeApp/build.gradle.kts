@@ -66,7 +66,6 @@ kotlin {
             dependencies {
                 implementation("net.java.dev.jna:jna:5.15.0")
                 implementation(project(":mupdf-jvm"))
-                //implementation("net.java.dev.jna:jna:5.15.0")
                 implementation(compose.desktop.currentOs)
                 implementation(libs.kotlinx.coroutines.swing)
             }

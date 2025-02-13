@@ -1,6 +1,7 @@
 package mobi.librera.mupdf.demo.fz.lib
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 
@@ -25,5 +26,24 @@ internal actual fun openDocument(document: ByteArray): MuDoc {
         override fun close() {
             common.close()
         }
+    }
+}
+
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+actual object Logger {
+    actual fun debug(message: String) {
+        Log.d("AppLogger","debug: [$message]")
+    }
+
+    actual fun info(message: String) {
+        Log.i("AppLogger", message)
+    }
+
+    actual fun warn(message: String) {
+        Log.w("AppLogger", message)
+    }
+
+    actual fun error(message: String) {
+        Log.e("AppLogger", message)
     }
 }
