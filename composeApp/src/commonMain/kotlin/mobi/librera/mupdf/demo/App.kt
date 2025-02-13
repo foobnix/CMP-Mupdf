@@ -129,7 +129,7 @@ fun App() {
                     contentPadding = PaddingValues(1.dp),
                     beyondViewportPageCount = 1){
                     number->
-                    val image = muDoc.renderPageSafe(number, 800)
+                    val image = muDoc.renderPageSafe(number, 1800)
 
                     Image(
                         image,
