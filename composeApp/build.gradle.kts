@@ -39,6 +39,7 @@ kotlin {
         }
         
         androidMain.dependencies {
+            implementation("net.java.dev.jna:jna:5.15.0@aar")
             implementation(project(":mupdf-android"))
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)

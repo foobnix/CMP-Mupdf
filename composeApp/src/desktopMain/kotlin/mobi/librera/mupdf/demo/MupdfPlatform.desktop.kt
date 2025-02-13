@@ -108,7 +108,7 @@ class MyDocument2(document: ByteArray) : MupdfDocument {
         val stride = fz.fz_pixmap_stride(fzContext, fzPixmap)
 
         val samples = fz.fz_pixmap_samples(fzContext, fzPixmap)
-        val array = samples.getIntArray(0,height*stride)
+        val array = samples.getIntArray(0,height*width)
 
         val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
          image.setRGB(0, 0, width, height, array, 0, width)
