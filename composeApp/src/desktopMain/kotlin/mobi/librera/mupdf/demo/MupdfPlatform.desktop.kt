@@ -14,6 +14,8 @@ import mobi.librera.mupdf.demo.fz.fz_irect
 import mobi.librera.mupdf.demo.fz.fz_library
 import mobi.librera.mupdf.demo.fz.fz_matrix
 import java.awt.image.BufferedImage
+import java.io.File
+
 
 internal actual fun getMupdfPlatform(): MupdfPlatform = MupdfDesktop2()
 
@@ -28,29 +30,42 @@ class MupdfDesktop2 : MupdfPlatform {
 }
 
 class MyDocument2(document: ByteArray) : MupdfDocument {
+//    val fz: fz_library = Native.load<fz_library>(
+//        "/Users/ivanivanenko/git/CMP-Mupdf/mupdf-jvm/libs/libmupdf_java64.jnilib",
+//        fz_library::class.java
+//    )
+
+    val libPath = File(System.getProperty("java.library.path")+"/libmupdf_java64.jnilib").absolutePath
+
     val fz: fz_library = Native.load<fz_library>(
-        "/Users/ivanivanenko/git/CMP-Mupdf/mupdf-jvm/libs/libmupdf_java64.jnilib",
+        libPath,
         fz_library::class.java
     )
+
+    @Suppress("UnsafeDynamicallyLoadedCode")
+    val my = {
+        //System.loadLibrary("mupdf_java64")
+        System.setProperty("jna.debug_load", "true")
+        System.setProperty("jna.debug_load.jna", "true")
+    }
+
+
     private var fzPagesCount = -1
     private var fzDocument: Pointer? = null
     private var fzContext: Pointer? = null
 
     init {
+        my()
+
         fzContext = fz.fz_new_context_imp(null, null, 2560000, "1.25.4")
         fz.fz_register_document_handlers(fzContext)
-//        fzDocument = fz.fz_open_document(
-//            fzContext,
-//            "/Users/ivanivanenko/git/CMP-Mupdf/composeApp/src/commonMain/composeResources/files/kotlin-reference.pdf"
-//        )
-
         val stream =
             fz.fz_open_memory(
                 fzContext,
                 document,
                 document.size
             )
-        fzDocument = fz.fz_open_document_with_stream(fzContext, "pdf ${document.size}", stream)
+        fzDocument = fz.fz_open_document_with_stream(fzContext, "pdf", stream)
 
         fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
     }
@@ -98,11 +113,18 @@ class MyDocument2(document: ByteArray) : MupdfDocument {
         val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
          image.setRGB(0, 0, width, height, array, 0, width)
 
+        fz.fz_drop_page(fzContext, fzPage)
+        fz.fz_drop_pixmap(fzContext, fzPixmap)
+
+        fz.fz_close_device(fzContext, fzDev)
+        fz.fz_drop_device(fzContext, fzDev)
+
         return image.toComposeImageBitmap()
     }
 
     override fun close() {
-
+        fz.fz_drop_document(fzContext, fzDocument)
+        fz.fz_drop_context(fzContext)
     }
 
 }
