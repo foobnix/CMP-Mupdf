@@ -12,7 +12,7 @@ import platform.Foundation.NSLog
 
 internal actual fun openDocument(document: ByteArray): MuDoc {
     val common = CommonLib(document)
-    return object : MuDoc {
+    return object : MuDoc() {
         override val pageCount = common.fzPagesCount
         override val title = common.fzTitle
 

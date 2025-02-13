@@ -63,93 +63,95 @@ class CommonLib(document: ByteArray) {
         }
     }
 
-    fun close() {
-        memScoped {
+    fun close() = memScoped {
             fz_drop_document(fzContext, fzDocument)
             fz_drop_context(fzContext)
-        }
     }
 
-    fun renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> {
+    fun renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> = memScoped {
+        NSLog(" InnerDocument 6 pageWidth $page $pageWidth $fzContext $fzDocument")
+        val fzPage = fz_load_page(fzContext, fzDocument, page)
+        NSLog(" InnerDocument 7 $fzContext $fzDocument")
 
-        memScoped {
-            NSLog(" InnerDocument 6 pageWidth $pageWidth")
-            val fzPage = fz_load_page(fzContext, fzDocument, page)
-            NSLog(" InnerDocument 7 $fzContext $fzDocument")
+        val fzBounds = fz_bound_page(fzContext, fzPage);
 
-            val fzBounds = fz_bound_page(fzContext, fzPage);
-
-            var (fzWidth, fzHeight) = fzBounds.useContents {
-                x1 - x0 to y1 - y0
-            }
-
-            val scale: Float = pageWidth / fzWidth
-            NSLog(" InnerDocument 6 scale $scale")
-
-            //  fzWidth =  pageWidth.toFloat()
-            //  fzHeight = (fzHeight * scale)
-
-
-            //val fzPixmap =
-            //    fz_new_pixmap_from_page(fzContext, fzPage, fzMatrix, fz_device_bgr(fzContext), 1)
-            fzWidth = fzWidth * scale
-            fzHeight = fzHeight * scale
-
-            val fzBbox = cValue<fz_irect>() {
-                x0 = 0
-                y0 = 0
-                x1 = fzWidth.toInt()
-                y1 = fzHeight.toInt()
-            }
-
-            NSLog(" InnerDocument 7 fzWidth $fzWidth  fzHeight $fzHeight")
-
-            val fzPixmap =
-                fz_new_pixmap_with_bbox(fzContext, fz_device_bgr(fzContext), fzBbox, null, 1);
-
-            NSLog(" InnerDocument 81")
-
-
-            NSLog(" InnerDocument 8")
-            fz_clear_pixmap_with_value(fzContext, fzPixmap, 0xff)
-            NSLog(" InnerDocument 9")
-
-
-            val fzMatrix3 = cValue<fz_matrix>(){
-                a = scale
-                b = 0f
-                c = 0f
-                d = scale
-                e = 0f
-                f = 0f
-            }
-            val fzMatrix2 = fz_identity.readValue()
-
-
-            val fzDev = fz_new_draw_device(fzContext, fzMatrix3, fzPixmap)
-            NSLog(" InnerDocument 10")
-
-            fz_run_page(fzContext, fzPage, fzDev, fzMatrix2, null)
-            NSLog(" InnerDocument 11")
-
-
-            //val byteArray = toByteArray(fzPixmap!!)
-            val byteArray = asIntArray(fzPixmap!!)
-
-            NSLog(" InnerDocument 13")
-
-
-            fz_drop_page(fzContext, fzPage)
-            fz_drop_pixmap(fzContext, fzPixmap)
-
-            fz_close_device(fzContext, fzDev)
-            fz_drop_device(fzContext, fzDev)
-
-
-            return Triple(byteArray, fzWidth.toInt(), fzHeight.toInt())
-
+        var (fzWidth, fzHeight) = fzBounds.useContents {
+            x1 - x0 to y1 - y0
         }
 
+        val scale: Float = pageWidth / fzWidth
+        NSLog(" InnerDocument 6 scale $scale")
+
+        //  fzWidth =  pageWidth.toFloat()
+        //  fzHeight = (fzHeight * scale)
+
+
+        //val fzPixmap =
+        //    fz_new_pixmap_from_page(fzContext, fzPage, fzMatrix, fz_device_bgr(fzContext), 1)
+        fzWidth = fzWidth * scale
+        fzHeight = fzHeight * scale
+
+        NSLog(" InnerDocument $fzWidth $fzHeight ")
+
+        val fzBbox = cValue<fz_irect>() {
+            x0 = 0
+            y0 = 0
+            x1 = fzWidth.toInt()
+            y1 = fzHeight.toInt()
+        }
+
+        NSLog(" InnerDocument 7 fzWidth $fzWidth  fzHeight $fzHeight")
+
+        val fzPixmap =
+            fz_new_pixmap_with_bbox(fzContext, fz_device_bgr(fzContext), fzBbox, null, 1);
+
+        NSLog(" InnerDocument 81")
+
+
+        NSLog(" InnerDocument 8")
+        fz_clear_pixmap_with_value(fzContext, fzPixmap, 0xff)
+        NSLog(" InnerDocument 9")
+
+
+        val fzMatrix3 = cValue<fz_matrix>() {
+            a = scale
+            b = 0f
+            c = 0f
+            d = scale
+            e = 0f
+            f = 0f
+        }
+        val fzMatrix2 = fz_identity.readValue()
+
+
+        val fzDev = fz_new_draw_device(fzContext, fzMatrix3, fzPixmap)
+        NSLog(" InnerDocument 10")
+
+        fz_run_page(fzContext, fzPage, fzDev, fzMatrix2, null)
+        NSLog(" InnerDocument 11")
+
+
+        //val byteArray = toByteArray(fzPixmap!!)
+        val byteArray = asIntArray(fzPixmap!!)
+
+        NSLog(" InnerDocument 13")
+
+
+        if (fzContext != null) {
+            if (fzPage != null) {
+                fz_drop_page(fzContext, fzPage)
+            }
+
+            fz_drop_pixmap(fzContext, fzPixmap)
+
+            if (fzDev != null) {
+                fz_close_device(fzContext, fzDev)
+                fz_drop_device(fzContext, fzDev)
+            }
+        }
+
+
+        return Triple(byteArray, fzWidth.toInt(), fzHeight.toInt())
     }
 }
 

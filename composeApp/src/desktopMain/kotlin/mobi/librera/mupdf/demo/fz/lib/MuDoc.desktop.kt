@@ -8,11 +8,11 @@ import java.util.logging.Logger.getLogger
 
 internal actual fun openDocument(document: ByteArray): MuDoc {
     val common = CommonLib(document)
-    return object : MuDoc {
+    return object : MuDoc() {
         override val pageCount = common.fzPagesCount
         override val title = common.fzTitle
 
-        override fun renderPage(page: Int, pageWidth: Int): ImageBitmap {
+        override  fun renderPage(page: Int, pageWidth: Int): ImageBitmap{
             val (array, width, height) = common.renderPage(page, pageWidth)
 
             val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)

@@ -25,7 +25,8 @@ class CommonLib(document: ByteArray) {
                 document,
                 document.size
             )
-        fzDocument = fz.fz_open_document_with_stream(fzContext, "pdf", stream)
+          fzDocument = fz.fz_open_document_with_stream(fzContext, "pdf", stream)
+      //  fzDocument = fz.fz_open_document(fzContext, "/Users/ivanivanenko/git/CMP-Mupdf/composeApp/src/commonMain/composeResources/files/kotlin-reference.pdf")
         fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
     }
 
@@ -34,7 +35,8 @@ class CommonLib(document: ByteArray) {
         fz.fz_drop_context(fzContext)
     }
 
-    fun renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> {
+
+    fun  renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> {
 
         val fzPage = fz.fz_load_page(fzContext, fzDocument, page)
         val fzBounds = fz.fz_bound_page(fzContext, fzPage);

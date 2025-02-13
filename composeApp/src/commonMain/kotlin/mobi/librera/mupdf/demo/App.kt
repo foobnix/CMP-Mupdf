@@ -5,16 +5,17 @@ package mobi.librera.mupdf.demo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import mobi.librera.mupdf.demo.fz.lib.FZ
 import mobi.librera.mupdf.demo.fz.lib.Logger
@@ -37,6 +39,8 @@ import mobi.librera.mupdf.demo.fz.lib.MuDoc
 import mobi.librera.mupdf.demo.fz.lib.openDocument
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
+
+val mutex = Mutex()
 
 @OptIn(ExperimentalResourceApi::class, ExperimentalCoroutinesApi::class)
 @Composable
@@ -66,15 +70,16 @@ fun App() {
 
             //var doc: MupdfDocument by remember { mutableStateOf(EmptyDocument()) }
 
-            var muDoc:MuDoc by  remember { mutableStateOf(MuDoc.EmptyDoc) }
+            var muDoc: MuDoc by remember { mutableStateOf(MuDoc.EmptyDoc) }
 
 
             var pageCount by remember { mutableStateOf(0) }
             var documentTitle by remember { mutableStateOf("") }
+            var pdfBytes by remember { mutableStateOf(ByteArray(0)) }
 
-            if(pageCount==0) {
+
                 LaunchedEffect(Unit) {
-                    val pdfBytes = withContext(Dispatchers.IO) {
+                    pdfBytes = withContext(Dispatchers.IO) {
                         Res.readBytes("files/kotlin-reference.pdf")
                     }
 //                    //doc = mupdf.openDocument(pdfBytes!!)
@@ -87,9 +92,9 @@ fun App() {
                     documentTitle = muDoc.title
                     sliderPosition = 0f
                 }
-            }
 
-            if (pageCount > 0) {
+
+            if (pdfBytes.isNotEmpty()) {
 
                 val textPages = "Pages: ${sliderPosition.toInt() + 1} / ${pageCount + 1}"
 
@@ -103,6 +108,8 @@ fun App() {
                         text = documentTitle,
                     )
                 }
+                val state = rememberPagerState(pageCount={pageCount})
+
 
                 Slider(
                     value = sliderPosition,
@@ -114,33 +121,48 @@ fun App() {
                 )
 
                 LaunchedEffect(sliderPosition) {
-                    listState.scrollToItem(sliderPosition.toInt())
+                    //listState.scrollToItem(sliderPosition.toInt())
+                    state.scrollToPage(sliderPosition.toInt())
                 }
 
-                LazyColumn(
-                    modifier = Modifier.padding(4.dp),
-                    state = listState,
-                    userScrollEnabled = true
-                ) {
-                    items(pageCount ) { number ->
-                        val image = muDoc.renderPage(number,800)
-                        Image(
-                            image,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier.fillMaxWidth().padding(top = 1.dp),
-                            contentDescription = "Mupdf Image"
-                        )
+                VerticalPager(state,
+                    contentPadding = PaddingValues(1.dp),
+                    beyondViewportPageCount = 1){
+                    number->
+                    val image = muDoc.renderPageSafe(number, 800)
 
-
-                    }
+                    Image(
+                        image,
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier.fillMaxWidth().padding(top = 1.dp),
+                        contentDescription = "Mupdf Image"
+                    )
 
                 }
-                DisposableEffect(Unit) {
-                    onDispose {
-                        muDoc.close()
-                    }
 
-                }
+//                LazyColumn(
+//                    modifier = Modifier.weight(1f).padding(4.dp),
+//                    state = listState,
+//                    userScrollEnabled = true,
+//
+//
+//                    ) {
+//                    items(pageCount, key = { index -> index }) { number ->
+//
+//                        val image = muDoc.renderPageSafe(number, 800)
+//
+//                        Image(
+//                            image,
+//                            contentScale = ContentScale.FillWidth,
+//                            modifier = Modifier.fillMaxWidth().padding(top = 1.dp),
+//                            contentDescription = "Mupdf Image"
+//                        )
+//
+//
+//                    }
+//
+//
+//                }
 
             }
         }
