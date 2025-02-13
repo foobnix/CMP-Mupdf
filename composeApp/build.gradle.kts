@@ -25,54 +25,44 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            linkerOpts.add("-Xbinary=bundleId=moli.librera.mupdf")
+            linkerOpts.add("-Xbinary=bundleId=mobi.librera.mupdf")
         }
     }
 
     jvm("desktop")
 
     sourceSets {
-        //val desktopMain by getting
-
         val mupdfMain by creating {
             dependencies {
-                //implementation("net.java.dev.jna:jna:5.15.0")
                 implementation("net.java.dev.jna:jna:5.15.0@aar")
             }
         }
-
-        iosMain.dependencies {
-            implementation(project(":mupdf-ios"))
+        val commonMain by getting{
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.runtime.compose)
+            }
         }
 
         val androidMain by getting {
             dependsOn(mupdfMain)
+            dependsOn(commonMain)
             dependencies {
-                //implementation("net.java.dev.jna:jna:5.15.0@aar")
-
-
                 implementation(project(":mupdf-android"))
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
             }
         }
-        commonMain.dependencies {
 
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
-        }
-        jvmMain.dependencies {
-
-        }
         val desktopMain by getting {
             dependsOn(mupdfMain)
-
+            dependsOn(commonMain)
             dependencies {
                 implementation("net.java.dev.jna:jna:5.15.0")
                 implementation(project(":mupdf-jvm"))
@@ -81,6 +71,25 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.swing)
             }
         }
+
+//        iosMain.dependencies {
+//            implementation(project(":mupdf-ios"))
+//        }
+        val iosMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(project(":mupdf-ios"))
+            }
+        }
+
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
     }
 }
 tasks.withType<JavaExec> {

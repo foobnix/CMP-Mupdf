@@ -10,9 +10,12 @@ expect val fz: fz_library
 class CommonLib(document: ByteArray) {
     var fzContext: Pointer? = null
     var fzDocument: Pointer? = null
+    var fzPagesCount: Int = 0
+    var fzTitle: String = "title"
+    var fzMupdfVersion: String = "1.25.4"
 
     init {
-        fzContext = fz.fz_new_context_imp(null, null, 2560000, "1.25.4")
+        fzContext = fz.fz_new_context_imp(null, null, 2560000, fzMupdfVersion)
         fz.fz_register_document_handlers(fzContext)
         val stream =
             fz.fz_open_memory(
@@ -21,9 +24,14 @@ class CommonLib(document: ByteArray) {
                 document.size
             )
         fzDocument = fz.fz_open_document_with_stream(fzContext, "pdf", stream)
+        fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
+    }
+    fun close(){
+        fz.fz_drop_document(fzContext, fzDocument)
+        fz.fz_drop_context(fzContext)
     }
 
-    fun renderPage(page: Int, pageWidth: Int): IntArray {
+    fun renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> {
 
         val fzPage = fz.fz_load_page(fzContext, fzDocument, page)
         val fzBounds = fz.fz_bound_page(fzContext, fzPage);
@@ -61,7 +69,7 @@ class CommonLib(document: ByteArray) {
         fz.fz_close_device(fzContext, fzDev)
         fz.fz_drop_device(fzContext, fzDev)
 
-        return array
+        return Triple(array, width, height)
 
     }
 }
