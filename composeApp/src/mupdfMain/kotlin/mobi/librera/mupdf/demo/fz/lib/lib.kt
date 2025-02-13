@@ -8,8 +8,8 @@ import mobi.librera.mupdf.demo.fz.fz_matrix
 expect val fz: fz_library
 
 class CommonLib(document: ByteArray) {
-    var fzContext: Pointer? = null
-    var fzDocument: Pointer? = null
+    private var fzContext: Pointer? = null
+    private var fzDocument: Pointer? = null
     var fzPagesCount: Int = 0
     var fzTitle: String = "title"
     var fzMupdfVersion: String = "1.25.4"

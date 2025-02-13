@@ -32,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import mobi.librera.mupdf.demo.fz.lib.MuDoc
+import mobi.librera.mupdf.demo.fz.lib.openDocument
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -69,7 +71,11 @@ fun App() {
 
             var pdfBytes by remember { mutableStateOf<ByteArray?>(null) }
 
-            var doc: MupdfDocument by remember { mutableStateOf(EmptyDocument()) }
+            //var doc: MupdfDocument by remember { mutableStateOf(EmptyDocument()) }
+
+            var muDoc:MuDoc by  remember { mutableStateOf(MuDoc.EmptyDoc) }
+
+
             var pageCount by remember { mutableStateOf(0) }
             var documentTitle by remember { mutableStateOf("") }
 
@@ -77,9 +83,11 @@ fun App() {
                 pdfBytes = withContext(Dispatchers.IO) {
                     Res.readBytes("files/kotlin-reference.pdf")
                 }
-                doc = mupdf.openDocument(pdfBytes!!)
-                pageCount = doc.pageCount
-                documentTitle = doc.title
+               /// doc = mupdf.openDocument(pdfBytes!!)
+                muDoc = openDocument(pdfBytes!!)
+
+                pageCount = muDoc.pageCount
+                documentTitle = muDoc.title
                 sliderPosition = 0f
             }
 
@@ -117,7 +125,7 @@ fun App() {
                     userScrollEnabled = true
                 ) {
                     items(pageCount) { number ->
-                        val image = doc.renderPage(number)
+                        val image = muDoc.renderPage(number,800)
                         Image(
                             image,
                             contentScale = ContentScale.FillWidth,
@@ -131,7 +139,7 @@ fun App() {
                 }
                 DisposableEffect(Unit) {
                     onDispose {
-                        doc.close()
+                        muDoc.close()
                     }
 
                 }
