@@ -1,3 +1,5 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package mobi.librera.mupdf.demo
 
 import androidx.compose.foundation.Image
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -24,13 +27,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cmp_mupdf.composeapp.generated.resources.Res
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalCoroutinesApi::class)
 @Composable
 @Preview
 fun App() {
@@ -55,17 +60,30 @@ fun App() {
             var sliderPosition by remember { mutableStateOf(0f) }
 
 
+            var showFilePicker by remember { mutableStateOf(false) }
+
+            Button(onClick = { showFilePicker = true }) {
+                Text(("Open document"))
+            }
+            val fileType = listOf("epub", "pdf")
+
             var pdfBytes by remember { mutableStateOf<ByteArray?>(null) }
+
+            var doc: MupdfDocument by remember { mutableStateOf(EmptyDocument()) }
+            var pageCount by remember { mutableStateOf(0) }
+            var documentTitle by remember { mutableStateOf("") }
 
             LaunchedEffect(Unit) {
                 pdfBytes = withContext(Dispatchers.IO) {
                     Res.readBytes("files/kotlin-reference.pdf")
                 }
+                doc = mupdf.openDocument(pdfBytes!!)
+                pageCount = doc.pageCount
+                documentTitle = doc.title
+                sliderPosition = 0f
             }
-            if (pdfBytes != null) {
-                val doc by remember { mutableStateOf(mupdf.openDocument(pdfBytes!!)) }
-                val pageCount by remember { mutableStateOf(doc.pageCount) }
-                val documentTitle by remember { mutableStateOf(doc.title) }
+
+            if (pageCount > 0) {
 
                 val textPages = "Pages: ${sliderPosition.toInt() + 1} / ${pageCount + 1}"
 
@@ -93,7 +111,6 @@ fun App() {
                     listState.scrollToItem(sliderPosition.toInt())
                 }
 
-
                 LazyColumn(
                     modifier = Modifier.padding(4.dp),
                     state = listState,
@@ -108,17 +125,22 @@ fun App() {
                             contentDescription = "Mupdf Image"
                         )
 
-                    }
-                }
 
+                    }
+
+                }
                 DisposableEffect(Unit) {
                     onDispose {
                         doc.close()
                     }
 
                 }
-            }
 
+            }
         }
+
+
     }
+
 }
+

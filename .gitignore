@@ -20,3 +20,4 @@ captures
 **/libs/
 /mupdf/
 /kotlin-js-store/
+/composeApp/hs_err_*

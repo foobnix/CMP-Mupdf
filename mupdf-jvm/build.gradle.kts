@@ -6,6 +6,9 @@ tasks.withType<JavaExec> {
 	systemProperty("java.library.path", "libs")
 }
 
+dependencies{
+
+}
 
 sourceSets {
 	main {

@@ -41,6 +41,9 @@ public class Context
 	private static native int initNative();
 
 	public static void init() {
+		if(true){
+			return;
+		}
 		if (!inited) {
 			inited = true;
 			try {

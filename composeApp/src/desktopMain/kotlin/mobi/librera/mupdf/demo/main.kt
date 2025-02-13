@@ -7,6 +7,8 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 
+
+@OptIn(ExperimentalStdlibApi::class)
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
@@ -18,5 +20,6 @@ fun main() = application {
         )
     ) {
         App()
+        //MyDocument2("".toByteArray()).renderPage(0)
     }
 }

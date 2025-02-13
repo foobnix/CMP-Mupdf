@@ -44,6 +44,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
@@ -53,15 +54,19 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
         }
+        jvmMain.dependencies {
+
+        }
         desktopMain.dependencies {
             implementation(project(":mupdf-jvm"))
+            implementation("net.java.dev.jna:jna:5.15.0")
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
     }
 }
 tasks.withType<JavaExec> {
-    systemProperty("java.library.path", "../mupdf-jvm/libs")
+   systemProperty("java.library.path", "../mupdf-jvm/libs")
 }
 
 
