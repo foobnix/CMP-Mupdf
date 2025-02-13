@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -63,15 +62,7 @@ fun App() {
 
             var sliderPosition by remember { mutableStateOf(0f) }
 
-
-            var showFilePicker by remember { mutableStateOf(false) }
-
-            Button(onClick = { showFilePicker = true }) {
-                Text(("Open document"))
-            }
-            val fileType = listOf("epub", "pdf")
-
-            var pdfBytes by remember { mutableStateOf<ByteArray?>(null) }
+            //var pdfBytes by remember { mutableStateOf<ByteArray?>(null) }
 
             //var doc: MupdfDocument by remember { mutableStateOf(EmptyDocument()) }
 
@@ -81,16 +72,21 @@ fun App() {
             var pageCount by remember { mutableStateOf(0) }
             var documentTitle by remember { mutableStateOf("") }
 
-            LaunchedEffect(Unit) {
-                pdfBytes = withContext(Dispatchers.IO) {
-                    Res.readBytes("files/kotlin-reference.pdf")
-                }
-               /// doc = mupdf.openDocument(pdfBytes!!)
-                muDoc = openDocument(pdfBytes!!)
+            if(pageCount==0) {
+                LaunchedEffect(Unit) {
+                    val pdfBytes = withContext(Dispatchers.IO) {
+                        Res.readBytes("files/kotlin-reference.pdf")
+                    }
+//                    //doc = mupdf.openDocument(pdfBytes!!)
+//                    val buffer = Buffer()
+//                    buffer.write(pdfBytes)
 
-                pageCount = muDoc.pageCount
-                documentTitle = muDoc.title
-                sliderPosition = 0f
+                    muDoc = openDocument(pdfBytes)
+
+                    pageCount = muDoc.pageCount
+                    documentTitle = muDoc.title
+                    sliderPosition = 0f
+                }
             }
 
             if (pageCount > 0) {
@@ -126,7 +122,7 @@ fun App() {
                     state = listState,
                     userScrollEnabled = true
                 ) {
-                    items(pageCount) { number ->
+                    items(pageCount ) { number ->
                         val image = muDoc.renderPage(number,800)
                         Image(
                             image,
@@ -153,4 +149,5 @@ fun App() {
     }
 
 }
+
 

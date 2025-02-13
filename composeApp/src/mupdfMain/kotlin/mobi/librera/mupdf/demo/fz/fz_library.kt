@@ -22,7 +22,7 @@ interface fz_library : Library {
 
     fun fz_load_page(ctx: Pointer?, doc: Pointer?, pageNumber: Int): Pointer
 
-    fun fz_bound_page(ctx: Pointer?, page: Pointer): fz_rect?
+    fun fz_bound_page(ctx: Pointer?, page: Pointer): fz_rect
 
     fun fz_count_pages(fzContext: Pointer?, fzDocument: Pointer?): Int
 

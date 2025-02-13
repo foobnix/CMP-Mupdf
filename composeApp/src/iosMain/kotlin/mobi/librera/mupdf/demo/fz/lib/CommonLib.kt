@@ -28,14 +28,13 @@ import libmupdf.fz_drop_pixmap
 import libmupdf.fz_identity
 import libmupdf.fz_irect
 import libmupdf.fz_load_page
+import libmupdf.fz_matrix
 import libmupdf.fz_new_context_imp
 import libmupdf.fz_new_draw_device
 import libmupdf.fz_new_pixmap_with_bbox
 import libmupdf.fz_open_document_with_stream
 import libmupdf.fz_open_memory
 import libmupdf.fz_pixmap
-import libmupdf.fz_pixmap_height
-import libmupdf.fz_pixmap_width
 import libmupdf.fz_register_document_handlers
 import libmupdf.fz_run_page
 import platform.Foundation.NSLog
@@ -59,7 +58,7 @@ class CommonLib(document: ByteArray) {
                 )
             fzDocument = fz_open_document_with_stream(fzContext, "pdf ${document.size}", stream)
             fzPagesCount = fz_count_pages(fzContext, fzDocument)
-            NSLog(" InnerDocument 4 $fzPagesCount")
+            NSLog(" Open Document Done")
 
         }
     }
@@ -74,19 +73,27 @@ class CommonLib(document: ByteArray) {
     fun renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> {
 
         memScoped {
-            NSLog(" InnerDocument 6")
+            NSLog(" InnerDocument 6 pageWidth $pageWidth")
             val fzPage = fz_load_page(fzContext, fzDocument, page)
             NSLog(" InnerDocument 7 $fzContext $fzDocument")
 
             val fzBounds = fz_bound_page(fzContext, fzPage);
 
-
-            val (fzWidth, fzHeight) = fzBounds.useContents {
+            var (fzWidth, fzHeight) = fzBounds.useContents {
                 x1 - x0 to y1 - y0
             }
 
+            val scale: Float = pageWidth / fzWidth
+            NSLog(" InnerDocument 6 scale $scale")
+
+            //  fzWidth =  pageWidth.toFloat()
+            //  fzHeight = (fzHeight * scale)
+
+
             //val fzPixmap =
             //    fz_new_pixmap_from_page(fzContext, fzPage, fzMatrix, fz_device_bgr(fzContext), 1)
+            fzWidth = fzWidth * scale
+            fzHeight = fzHeight * scale
 
             val fzBbox = cValue<fz_irect>() {
                 x0 = 0
@@ -107,27 +114,29 @@ class CommonLib(document: ByteArray) {
             fz_clear_pixmap_with_value(fzContext, fzPixmap, 0xff)
             NSLog(" InnerDocument 9")
 
-            val fzMatrix = fz_identity.readValue()
+
+            val fzMatrix3 = cValue<fz_matrix>(){
+                a = scale
+                b = 0f
+                c = 0f
+                d = scale
+                e = 0f
+                f = 0f
+            }
+            val fzMatrix2 = fz_identity.readValue()
 
 
-            val fzDev = fz_new_draw_device(fzContext, fzMatrix, fzPixmap)
+            val fzDev = fz_new_draw_device(fzContext, fzMatrix3, fzPixmap)
             NSLog(" InnerDocument 10")
 
-            fz_run_page(fzContext, fzPage, fzDev, fzMatrix, null)
+            fz_run_page(fzContext, fzPage, fzDev, fzMatrix2, null)
             NSLog(" InnerDocument 11")
-
-            val width = fz_pixmap_width(fzContext, fzPixmap)
-            val height = fz_pixmap_height(fzContext, fzPixmap)
-            NSLog(" InnerDocument 12")
 
 
             //val byteArray = toByteArray(fzPixmap!!)
             val byteArray = asIntArray(fzPixmap!!)
 
             NSLog(" InnerDocument 13")
-
-
-
 
 
             fz_drop_page(fzContext, fzPage)
@@ -137,7 +146,7 @@ class CommonLib(document: ByteArray) {
             fz_drop_device(fzContext, fzDev)
 
 
-            return Triple(byteArray, width, height)
+            return Triple(byteArray, fzWidth.toInt(), fzHeight.toInt())
 
         }
 
