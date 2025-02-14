@@ -77,14 +77,8 @@ fun App() {
                 LaunchedEffect(Unit) {
                     pdfBytes = withContext(Dispatchers.IO) {
                        Res.readBytes("files/kotlin-reference.pdf")
-                       // Res.readBytes("files/epub30-spec.epub")
                     }
-//                    //doc = mupdf.openDocument(pdfBytes!!)
-//                    val buffer = Buffer()
-//                    buffer.write(pdfBytes)
-
                     muDoc = openDocument(pdfBytes)
-
                     pageCount = muDoc.pageCount
                     documentTitle = muDoc.title
                     sliderPosition = 0f
@@ -105,7 +99,6 @@ fun App() {
                         text = documentTitle,
                     )
                 }
-                //val state = rememberPagerState(pageCount={pageCount})
 
 
                 Slider(
@@ -119,23 +112,7 @@ fun App() {
 
                 LaunchedEffect(sliderPosition) {
                     listState.scrollToItem(sliderPosition.toInt())
-                    //state.scrollToPage(sliderPosition.toInt())
                 }
-
-//                VerticalPager(state,
-//                    contentPadding = PaddingValues(1.dp),
-//                    beyondViewportPageCount = 1){
-//                    number->
-//                    val image = muDoc.renderPageSafe(number, 700)
-//
-//                    Image(
-//                        image,
-//                        contentScale = ContentScale.FillWidth,
-//                        modifier = Modifier.fillMaxWidth().padding(top = 1.dp),
-//                        contentDescription = "Mupdf Image"
-//                    )
-//
-//                }
 
                 LazyColumn(
                     modifier = Modifier.weight(1f).padding(4.dp),

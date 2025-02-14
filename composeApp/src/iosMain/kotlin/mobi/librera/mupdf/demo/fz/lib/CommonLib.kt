@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalForeignApi::class, ExperimentalForeignApi::class)
+@file:OptIn(
+    ExperimentalForeignApi::class
+)
 
 package mobi.librera.mupdf.demo.fz.lib
 
@@ -40,6 +42,7 @@ import libmupdf.fz_run_page
 import platform.Foundation.NSLog
 import platform.posix.memcpy
 
+
 class CommonLib(document: ByteArray) {
     private var fzContext: CPointer<fz_context>? = null;
     private var fzDocument: CPointer<fz_document>? = null;
@@ -67,6 +70,7 @@ class CommonLib(document: ByteArray) {
         fz_drop_document(fzContext, fzDocument)
         fz_drop_context(fzContext)
     }
+
 
     fun renderPage(page: Int, pageWidth: Int): Triple<ByteArray, Int, Int> = memScoped {
         NSLog(" InnerDocument 6 pageWidth $page $pageWidth $fzContext $fzDocument")
@@ -137,23 +141,16 @@ class CommonLib(document: ByteArray) {
         NSLog(" InnerDocument 13")
 
 
-        if (fzContext != null) {
-            if (fzPage != null) {
-                fz_drop_page(fzContext, fzPage)
-            }
-
-            NSLog(" InnerDocument 14")
-            fz_drop_pixmap(fzContext, fzPixmap)
-            NSLog(" InnerDocument 15")
-            if (fzDev != null) {
-                fz_close_device(fzContext, fzDev)
-                fz_drop_device(fzContext, fzDev)
-            }
-            NSLog(" InnerDocument 16")
-        }
+        require(fzContext != null)
+        fz_drop_pixmap(fzContext, fzPixmap)
+//
+        fz_close_device(fzContext, fzDev)
+        fz_drop_device(fzContext, fzDev)
+//
+        fz_drop_page(fzContext, fzPage)
 
 
-        return Triple(byteArray, fzWidth.toInt(), fzHeight.toInt())
+        Triple(byteArray, fzWidth.toInt(), fzHeight.toInt())
     }
 }
 

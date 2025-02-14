@@ -18,6 +18,8 @@ internal actual fun openDocument(document: ByteArray): MuDoc {
             val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
             image.setRGB(0, 0, width, height, array, 0, width)
 
+
+
             return image.toComposeImageBitmap()
         }
 

@@ -11,7 +11,7 @@ internal actual fun openDocument(document: ByteArray): MuDoc {
         override val pageCount = common.fzPagesCount
         override val title = common.fzTitle
 
-        override  fun renderPage(page: Int, pageWidth: Int): ImageBitmap {
+        override fun renderPage(page: Int, pageWidth: Int): ImageBitmap {
             Logger.debug("Load page number  $page")
             val (array, width, height) = common.renderPage(page, pageWidth)
 
@@ -21,7 +21,9 @@ internal actual fun openDocument(document: ByteArray): MuDoc {
                 height,
                 Bitmap.Config.ARGB_8888
             )
+
             return image.asImageBitmap()
+
         }
 
         override fun close() {
@@ -33,7 +35,7 @@ internal actual fun openDocument(document: ByteArray): MuDoc {
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual object Logger {
     actual fun debug(message: String) {
-        Log.d("AppLogger","debug: [$message]")
+        Log.d("AppLogger", "debug: [$message]")
     }
 
     actual fun info(message: String) {

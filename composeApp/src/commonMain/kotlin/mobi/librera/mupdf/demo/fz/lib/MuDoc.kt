@@ -1,10 +1,9 @@
 package mobi.librera.mupdf.demo.fz.lib
 
 import androidx.compose.ui.graphics.ImageBitmap
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 internal expect fun openDocument(document: ByteArray): MuDoc
 
@@ -20,9 +19,7 @@ object FZ {
     val FZ_VERSION = "1.25.4"
 }
 
-val singleThreadDispatcher = newSingleThreadContext("MySingleThread")
-
-@OptIn(ExperimentalCoroutinesApi::class)
+val mutex = Mutex()
 abstract class MuDoc {
     abstract val pageCount: Int
     abstract val title: String
@@ -30,7 +27,7 @@ abstract class MuDoc {
     abstract fun close()
 
     fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap = runBlocking {
-        withContext(singleThreadDispatcher) {
+        mutex.withLock {
             renderPage(page, pageWidth)
         }
     }
