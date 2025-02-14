@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalForeignApi::class)
+@file:OptIn(ExperimentalForeignApi::class, ExperimentalForeignApi::class)
 
 package mobi.librera.mupdf.demo.fz.lib
 
@@ -64,11 +64,11 @@ class CommonLib(document: ByteArray) {
     }
 
     fun close() = memScoped {
-            fz_drop_document(fzContext, fzDocument)
-            fz_drop_context(fzContext)
+        fz_drop_document(fzContext, fzDocument)
+        fz_drop_context(fzContext)
     }
 
-    fun renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> = memScoped {
+    fun renderPage(page: Int, pageWidth: Int): Triple<ByteArray, Int, Int> = memScoped {
         NSLog(" InnerDocument 6 pageWidth $page $pageWidth $fzContext $fzDocument")
         val fzPage = fz_load_page(fzContext, fzDocument, page)
         NSLog(" InnerDocument 7 $fzContext $fzDocument")
@@ -131,8 +131,8 @@ class CommonLib(document: ByteArray) {
         NSLog(" InnerDocument 11")
 
 
-        //val byteArray = toByteArray(fzPixmap!!)
-        val byteArray = asIntArray(fzPixmap!!)
+        val byteArray = toByteArray(fzPixmap!!)
+        // val byteArray = asIntArray(fzPixmap!!)
 
         NSLog(" InnerDocument 13")
 
@@ -142,12 +142,14 @@ class CommonLib(document: ByteArray) {
                 fz_drop_page(fzContext, fzPage)
             }
 
+            NSLog(" InnerDocument 14")
             fz_drop_pixmap(fzContext, fzPixmap)
-
+            NSLog(" InnerDocument 15")
             if (fzDev != null) {
                 fz_close_device(fzContext, fzDev)
                 fz_drop_device(fzContext, fzDev)
             }
+            NSLog(" InnerDocument 16")
         }
 
 
@@ -166,6 +168,21 @@ fun asIntArray(pixmap: CPointer<fz_pixmap>): IntArray {
     val size = height * stride
 
     return IntArray(size.toInt()).apply {
+        usePinned { pinned ->
+            memcpy(pinned.addressOf(0), samples, size.toULong())
+        }
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+fun toByteArray(pixmap: CPointer<fz_pixmap>): ByteArray {
+    val samples = pixmap.pointed.samples
+    val height = pixmap.pointed.h
+    val stride = pixmap.pointed.stride
+
+    val size = height * stride
+
+    return ByteArray(size.toInt()).apply {
         usePinned { pinned ->
             memcpy(pinned.addressOf(0), samples, size.toULong())
         }

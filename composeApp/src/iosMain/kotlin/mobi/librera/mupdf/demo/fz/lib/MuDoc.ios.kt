@@ -19,14 +19,24 @@ internal actual fun openDocument(document: ByteArray): MuDoc {
         override fun renderPage(page: Int, pageWidth: Int): ImageBitmap {
             val (array, width, height) = common.renderPage(page, pageWidth)
 
+
             val info = ImageInfo.makeN32(width, height, ColorAlphaType.OPAQUE, ColorSpace.sRGB)
+            val buffer = Data.makeFromBytes(array)
+
             val p = Pixmap.make(
                 info,
-                Data.makeFromBytes(array.toByteArray()),
+                buffer,
                 width * 4  // Row bytes (4 bytes per pixel)
             )
 
-            return Image.makeFromPixmap(p).toComposeImageBitmap()
+            val makeFromPixmap = Image.makeFromPixmap(p)
+            val result = makeFromPixmap.toComposeImageBitmap()
+
+            makeFromPixmap.close()
+            buffer.close()
+            p.close()
+
+            return result
         }
 
         override fun close() {

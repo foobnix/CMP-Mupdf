@@ -54,7 +54,7 @@ mupdf/fitz/xml.h
 
 staticLibraries = libmupdf.a libmupdf-third.a
 
-libraryPaths.osx = libs/mupdf.xcframework/macos-arm64
+#libraryPaths.osx = libs/mupdf.xcframework/macos-arm64
 libraryPaths.ios = libs/mupdf.xcframework/ios-arm64
 libraryPaths.ios_simulator_arm64 = libs/mupdf.xcframework/ios-arm64-simulator
 libraryPaths = libs/mupdf.xcframework/ios-arm64-simulator

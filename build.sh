@@ -33,5 +33,4 @@ make generate -C $MUPDF_FOLDER
 ./mupdf-android/build.sh
 ./mupdf-jvm/build.sh
 ./mupdf-ios/build.sh
-./mupdf-jvm-binding/build.sh
 ./mupdf-wasm/build.sh

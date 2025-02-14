@@ -1,7 +1,10 @@
 package mobi.librera.mupdf.demo.fz.lib
 
 import androidx.compose.ui.graphics.ImageBitmap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 internal expect fun openDocument(document: ByteArray): MuDoc
 
@@ -17,15 +20,19 @@ object FZ {
     val FZ_VERSION = "1.25.4"
 }
 
+val singleThreadDispatcher = newSingleThreadContext("MySingleThread")
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class MuDoc {
     abstract val pageCount: Int
     abstract val title: String
     abstract fun renderPage(page: Int, pageWidth: Int): ImageBitmap
     abstract fun close()
 
-     fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap = runBlocking {
-        renderPage(page, pageWidth)
+    fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap = runBlocking {
+        withContext(singleThreadDispatcher) {
+            renderPage(page, pageWidth)
+        }
     }
 
     companion object EmptyDoc : MuDoc() {
@@ -36,25 +43,4 @@ abstract class MuDoc {
 
         override fun close() {}
     }
-}
-
-fun ByteArray.toIntArray(): IntArray {
-    require(size % 4 == 0) { "ByteArray size must be a multiple of 4" }
-    return IntArray(size / 4) { i ->
-        (this[i * 4].toInt() and 0xFF) or
-                ((this[i * 4 + 1].toInt() and 0xFF) shl 8) or
-                ((this[i * 4 + 2].toInt() and 0xFF) shl 16) or
-                ((this[i * 4 + 3].toInt() and 0xFF) shl 24)
-    }
-}
-
-fun IntArray.toByteArray(): ByteArray {
-    val byteArray = ByteArray(size * 4)
-    forEachIndexed { index, value ->
-        byteArray[index * 4] = (value and 0xFF).toByte()
-        byteArray[index * 4 + 1] = ((value shr 8) and 0xFF).toByte()
-        byteArray[index * 4 + 2] = ((value shr 16) and 0xFF).toByte()
-        byteArray[index * 4 + 3] = ((value shr 24) and 0xFF).toByte()
-    }
-    return byteArray
 }

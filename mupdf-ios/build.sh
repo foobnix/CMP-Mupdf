@@ -9,11 +9,11 @@ IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 
 ARCH="arm64"
-FLAGS_SIM="-isysroot $SIM_SDKROOT -miphonesimulator-version-min=12.0 -mios-simulator-version-min=12.0 -arch $ARCH -fembed-bitcode"
-FLAGS_IOS="-isysroot $IOS_SDKROOT -arch $ARCH -fembed-bitcode"
-FLAGS_OSX="-isysroot $OSX_SDKROOT -arch $ARCH -fembed-bitcode"
+FLAGS_SIM="-DTOFU_CJK_EXT -isysroot $SIM_SDKROOT -miphonesimulator-version-min=12.0 -mios-simulator-version-min=12.0 -arch $ARCH -fembed-bitcode"
+FLAGS_IOS="-DTOFU_CJK_EXT -isysroot $IOS_SDKROOT -arch $ARCH -fembed-bitcode"
+FLAGS_OSX="-DTOFU_CJK_EXT -isysroot $OSX_SDKROOT -arch $ARCH -fembed-bitcode"
 
-for FLAGS in $FLAGS_SIM $FLAGS_IOS $FLAGS_OSX; do
+for FLAGS in $FLAGS_SIM $FLAGS_IOS; do
 
   OUT=$MUPDF_FOLDER/build/build-$ARCH
   XCFRAMEWORK_FOLDER=libs/mupdf.xcframework
