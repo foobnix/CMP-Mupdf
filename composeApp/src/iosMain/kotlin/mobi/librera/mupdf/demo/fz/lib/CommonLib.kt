@@ -8,11 +8,9 @@ import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.cValue
-import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.readValue
-import kotlinx.cinterop.refTo
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
 import libmupdf.fz_bound_page
@@ -34,11 +32,11 @@ import libmupdf.fz_matrix
 import libmupdf.fz_new_context_imp
 import libmupdf.fz_new_draw_device
 import libmupdf.fz_new_pixmap_with_bbox
-import libmupdf.fz_open_document_with_stream
-import libmupdf.fz_open_memory
+import libmupdf.fz_open_document
 import libmupdf.fz_pixmap
 import libmupdf.fz_register_document_handlers
 import libmupdf.fz_run_page
+import mobi.librera.mupdf.demo.createTempFile
 import platform.Foundation.NSLog
 import platform.posix.memcpy
 
@@ -53,13 +51,26 @@ class CommonLib(document: ByteArray) {
         memScoped {
             fzContext = fz_new_context_imp(null, null, 1000u, FZ.FZ_VERSION)
             fz_register_document_handlers(fzContext)
-            val stream =
-                fz_open_memory(
-                    fzContext,
-                    document.toUByteArray().refTo(0),
-                    document.size.convert()
-                )
-            fzDocument = fz_open_document_with_stream(fzContext, "pdf ${document.size}", stream)
+
+            val fileCache = createTempFile("",document)
+           // Logger.debug("fileCache $fileCache")
+
+           //val buffer = fz_new_buffer_from_data(fzContext,document.toUByteArray().refTo(0),document.size.convert())
+
+            //buffer = fz_keep_buffer(fzContext,buffer)
+            fzDocument = fz_open_document(fzContext,fileCache)
+
+
+            //fzDocument = fz_open_document_with_buffer(fzContext, "epub", buffer)
+//            val stream =
+//                fz_open_memory(
+//                    fzContext,
+//                    document.toUByteArray().refTo(0),
+//                    document.size.convert()
+//                )
+//            fzDocument = fz_open_document_with_stream(fzContext, "pdf ${document.size}", stream)
+
+
             fzPagesCount = fz_count_pages(fzContext, fzDocument)
             NSLog(" Open Document Done")
 

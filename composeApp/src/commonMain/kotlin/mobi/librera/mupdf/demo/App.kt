@@ -15,20 +15,25 @@ import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import cmp_mupdf.composeapp.generated.resources.Res
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mobi.librera.mupdf.demo.fz.lib.FZ
 import mobi.librera.mupdf.demo.fz.lib.Logger
@@ -38,17 +43,33 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
+@Composable
+fun MyComposable(viewModel: MuPdfViewModel) {
+    val data by viewModel.data.collectAsState()
+
+}
+
 @OptIn(ExperimentalResourceApi::class, ExperimentalCoroutinesApi::class)
 @Composable
 @Preview
 fun App() {
+
+
     Logger.debug("Start Application")
+
+
     MaterialTheme {
+        var componentWidth by remember { mutableStateOf(0) }
+
+
 
         Column(
-            Modifier.fillMaxSize().background(Color.LightGray)
-                .padding(top = 20.dp),
-
+            Modifier.fillMaxSize().background(Color.LightGray).padding(top = 20.dp)
+                .onGloballyPositioned {
+                    if (componentWidth == 0) {
+                        componentWidth = it.size.width
+                    }
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
@@ -62,52 +83,54 @@ fun App() {
 
             var sliderPosition by remember { mutableStateOf(0f) }
 
-            //var pdfBytes by remember { mutableStateOf<ByteArray?>(null) }
-
-            //var doc: MupdfDocument by remember { mutableStateOf(EmptyDocument()) }
-
             var muDoc: MuDoc by remember { mutableStateOf(MuDoc.EmptyDoc) }
-
-
             var pageCount by remember { mutableStateOf(0) }
             var documentTitle by remember { mutableStateOf("") }
-            var pdfBytes by remember { mutableStateOf(ByteArray(0)) }
+            var pdfBytes = remember { mutableStateOf(ByteArray(0)) }
+
+            var counter by remember { mutableStateOf(0) }
 
 
-                LaunchedEffect(Unit) {
-                    pdfBytes = withContext(Dispatchers.IO) {
-                       Res.readBytes("files/kotlin-reference.pdf")
+            val coroutineScope = rememberCoroutineScope()
+
+            LaunchedEffect(Unit) {
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) {
+                        pdfBytes.value = Res.readBytes("files/kotlin-reference.pdf")
+
+                        muDoc = openDocument(pdfBytes.value)
+                        pageCount = muDoc.pageCount
+                        documentTitle = muDoc.title
+                        sliderPosition = 0f
+                        counter++
                     }
-                    muDoc = openDocument(pdfBytes)
-                    pageCount = muDoc.pageCount
-                    documentTitle = muDoc.title
-                    sliderPosition = 0f
                 }
+                //}
+//                pdfBytes.value = withContext(Dispatchers.IO) {
+//                    val res = Res.readBytes("files/kotlin-reference.pdf")
+//                    muDoc = openDocument(res)
+//                    res
+//                }
 
 
-            if (pdfBytes.isNotEmpty()) {
+            }
 
-                val textPages = "Pages: ${sliderPosition.toInt() + 1} / ${pageCount + 1}"
+
+            if (pageCount > 0 && componentWidth > 0) {
+
+                val textPages =
+                    "Pages: ${sliderPosition.toInt() + 1} / ${pageCount + 1} counter: $counter"
 
                 Text(
                     modifier = Modifier.align(alignment = Alignment.Start),
                     text = textPages,
                 )
-                if (documentTitle.isNotEmpty()) {
-                    Text(
-                        modifier = Modifier.align(alignment = Alignment.Start),
-                        text = documentTitle,
-                    )
-                }
-
 
                 Slider(
                     value = sliderPosition,
                     valueRange = 0f..pageCount.toFloat(),
                     onValueChange = { sliderPosition = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
                 )
 
                 LaunchedEffect(sliderPosition) {
@@ -122,26 +145,25 @@ fun App() {
 
                     ) {
                     items(pageCount, key = { index -> index }) { number ->
+                        var image by remember(number) { mutableStateOf(ImageBitmap(1, 1)) }
 
-                            val image = muDoc.renderPageSafe(number, 1000)
+                        remember(number) {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                    image = muDoc.renderPageSafe(number, componentWidth)
+                            }
+                        }
 
-                            Image(
-                                image,
-                                contentScale = ContentScale.FillWidth,
-                                modifier = Modifier.fillMaxWidth().padding(top = 1.dp),
-                                contentDescription = "Mupdf Image"
-                            )
-
+                        Image(
+                            image,
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier.fillMaxWidth().padding(top = 1.dp),
+                            contentDescription = "Mupdf Image"
+                        )
 
                     }
-
-
                 }
-
             }
         }
-
-
     }
 
 }

@@ -3,6 +3,8 @@
 cd "$(dirname "$0")"
 
 MUPDF_FOLDER=../mupdf
+rm -rf libs
+mkdir libs
 
 OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)

@@ -1,13 +1,13 @@
 package mobi.librera.mupdf.demo.fz.lib
 
 import androidx.compose.ui.graphics.ImageBitmap
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal expect fun openDocument(document: ByteArray): MuDoc
 
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect object Logger {
     fun debug(message: String)
     fun info(message: String)
@@ -17,18 +17,20 @@ expect object Logger {
 
 object FZ {
     val FZ_VERSION = "1.25.4"
+    //val FZ_VERSION = "1.23.7"
 }
 
 val mutex = Mutex()
+
 abstract class MuDoc {
     abstract val pageCount: Int
     abstract val title: String
     abstract fun renderPage(page: Int, pageWidth: Int): ImageBitmap
     abstract fun close()
 
-    fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap = runBlocking {
+    suspend fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap  {
         mutex.withLock {
-            renderPage(page, pageWidth)
+        return renderPage(page, pageWidth)
         }
     }
 

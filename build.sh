@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 VERSION=1.25.4
+#VERSION=1.23.7
 git clone --recursive https://github.com/ArtifexSoftware/mupdf.git --branch $VERSION mupdf
 
 ROOT_FOLDER=$(pwd)
@@ -33,4 +34,4 @@ make generate -C $MUPDF_FOLDER
 ./mupdf-android/build.sh
 ./mupdf-jvm/build.sh
 ./mupdf-ios/build.sh
-./mupdf-wasm/build.sh
+#./mupdf-wasm/build.sh

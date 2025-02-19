@@ -15,8 +15,13 @@ interface fz_library : Library {
     fun fz_open_document(ctx: Pointer?, filename: String): Pointer
 
     fun fz_open_document_with_stream(ctx: Pointer?, magic: String, stream: Pointer): Pointer
+    fun fz_open_document_with_buffer(ctx: Pointer?, magic: String, stream: Pointer): Pointer
+
 
     fun fz_open_memory(ctx: Pointer?, array: ByteArray, size: Int): Pointer
+    fun fz_new_buffer_from_data(ctx: Pointer?, array: ByteArray, size: Int): Pointer
+
+    fun fz_keep_buffer(ctx: Pointer?,buffer:Pointer):Pointer
 
     fun fz_register_document_handlers(ctx: Pointer?): Pointer?
 

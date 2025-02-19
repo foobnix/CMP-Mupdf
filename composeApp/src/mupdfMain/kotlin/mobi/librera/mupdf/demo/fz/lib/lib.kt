@@ -19,14 +19,17 @@ class CommonLib(document: ByteArray) {
         println("Open document")
         fzContext = fz.fz_new_context_imp(null, null, 2560000, fzMupdfVersion)
         fz.fz_register_document_handlers(fzContext)
-        val stream =
-            fz.fz_open_memory(
-                fzContext,
-                document,
-                document.size
-            )
-          fzDocument = fz.fz_open_document_with_stream(fzContext, "pdf", stream)
-      //  fzDocument = fz.fz_open_document(fzContext, "/Users/ivanivanenko/git/CMP-Mupdf/composeApp/src/commonMain/composeResources/files/kotlin-reference.pdf")
+
+
+        //  val stream = fz.fz_open_memory(fzContext, document, document.size)
+        // fzDocument = fz.fz_open_document_with_stream(fzContext, ".epub", stream)
+
+
+        var buffer = fz.fz_new_buffer_from_data(fzContext, document, document.size)
+        fzDocument = fz.fz_open_document_with_buffer(fzContext, "epub", buffer)
+
+        //fzDocument = fz.fz_open_document(fzContext, "/Users/ivanivanenko/git/CMP-Mupdf/composeApp/src/commonMain/composeResources/files/epub30-spec.epub")
+
         fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
     }
 
@@ -36,7 +39,7 @@ class CommonLib(document: ByteArray) {
     }
 
 
-    fun  renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> {
+    fun renderPage(page: Int, pageWidth: Int): Triple<IntArray, Int, Int> {
 
         val fzPage = fz.fz_load_page(fzContext, fzDocument, page)
         val fzBounds = fz.fz_bound_page(fzContext, fzPage);
@@ -47,7 +50,7 @@ class CommonLib(document: ByteArray) {
 
         val scale: Float = pageWidth / fzBounds.x1
 
-        val pWidth: Int =  pageWidth
+        val pWidth: Int = pageWidth
         val pHeight: Int = (fzBounds.y1 * scale).toInt()
 
 
@@ -65,7 +68,6 @@ class CommonLib(document: ByteArray) {
         }
 
 
-
         val fzPixmap =
             fz.fz_new_pixmap_with_bbox(fzContext, fzColor, bbox, null, 1);
 
@@ -74,7 +76,7 @@ class CommonLib(document: ByteArray) {
 
 
         val fzDev = fz.fz_new_draw_device(fzContext, fzMatrix, fzPixmap)
-        fz.fz_run_page(fzContext, fzPage, fzDev,  fz_matrix(), null)
+        fz.fz_run_page(fzContext, fzPage, fzDev, fz_matrix(), null)
         // val width = fz.fz_pixmap_width(fzContext, fzPixmap)
         //val height = fz.fz_pixmap_height(fzContext, fzPixmap)
         //val size = fz.fz_pixmap_size(fzContext, fzPixmap)
