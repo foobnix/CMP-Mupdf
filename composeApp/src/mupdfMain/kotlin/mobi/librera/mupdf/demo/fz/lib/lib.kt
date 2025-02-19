@@ -8,7 +8,7 @@ import mobi.librera.mupdf.demo.fz.fz_matrix
 
 expect val fz: fz_library
 
-class CommonLib(document: ByteArray) {
+class CommonLib(tempFile: String) {
     private var fzContext: Pointer? = null
     private var fzDocument: Pointer? = null
     var fzPagesCount: Int = 0
@@ -25,10 +25,10 @@ class CommonLib(document: ByteArray) {
         // fzDocument = fz.fz_open_document_with_stream(fzContext, ".epub", stream)
 
 
-        var buffer = fz.fz_new_buffer_from_data(fzContext, document, document.size)
-        fzDocument = fz.fz_open_document_with_buffer(fzContext, "epub", buffer)
+        //var buffer = fz.fz_new_buffer_from_data(fzContext, document, document.size)
+        //fzDocument = fz.fz_open_document_with_buffer(fzContext, "epub", buffer)
 
-        //fzDocument = fz.fz_open_document(fzContext, "/Users/ivanivanenko/git/CMP-Mupdf/composeApp/src/commonMain/composeResources/files/epub30-spec.epub")
+        fzDocument = fz.fz_open_document(fzContext, tempFile)
 
         fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
     }

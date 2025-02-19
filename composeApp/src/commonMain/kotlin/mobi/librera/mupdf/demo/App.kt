@@ -98,7 +98,7 @@ fun App() {
                     withContext(Dispatchers.IO) {
                         pdfBytes.value = Res.readBytes("files/kotlin-reference.pdf")
 
-                        muDoc = openDocument(pdfBytes.value)
+                        muDoc = openDocument("kotlin-reference.pdf", pdfBytes.value)
                         pageCount = muDoc.pageCount
                         documentTitle = muDoc.title
                         sliderPosition = 0f
@@ -149,7 +149,7 @@ fun App() {
 
                         remember(number) {
                             coroutineScope.launch(Dispatchers.IO) {
-                                    image = muDoc.renderPageSafe(number, componentWidth)
+                                image = muDoc.renderPageSafe(number, componentWidth)
                             }
                         }
 

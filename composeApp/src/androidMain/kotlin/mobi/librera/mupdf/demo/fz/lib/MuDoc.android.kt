@@ -4,9 +4,11 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import mobi.librera.mupdf.platform.MuFile
 
-internal actual fun openDocument(document: ByteArray): MuDoc {
-    val common = CommonLib(document)
+internal actual fun openDocument(name:String, document: ByteArray): MuDoc {
+    val temp = MuFile.createTempFile(name, document)
+    val common = CommonLib(temp)
     return object : MuDoc() {
         override val pageCount = common.fzPagesCount
         override val title = common.fzTitle

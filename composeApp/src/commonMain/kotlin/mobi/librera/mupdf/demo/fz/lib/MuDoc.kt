@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-internal expect fun openDocument(document: ByteArray): MuDoc
+internal expect fun openDocument(name: String, document: ByteArray): MuDoc
 
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -28,9 +28,9 @@ abstract class MuDoc {
     abstract fun renderPage(page: Int, pageWidth: Int): ImageBitmap
     abstract fun close()
 
-    suspend fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap  {
+    suspend fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap {
         mutex.withLock {
-        return renderPage(page, pageWidth)
+            return renderPage(page, pageWidth)
         }
     }
 

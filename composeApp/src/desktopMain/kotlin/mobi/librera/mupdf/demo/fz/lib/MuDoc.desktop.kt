@@ -2,12 +2,14 @@ package mobi.librera.mupdf.demo.fz.lib
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import mobi.librera.mupdf.platform.MuFile
 import java.awt.image.BufferedImage
 import java.util.logging.Level
 import java.util.logging.Logger.getLogger
 
-internal actual fun openDocument(document: ByteArray): MuDoc {
-    val common = CommonLib(document)
+internal actual fun openDocument(name:String, document: ByteArray): MuDoc {
+    val tempFile = MuFile.createTempFile(name, document)
+    val common = CommonLib(tempFile)
     return object : MuDoc() {
         override val pageCount = common.fzPagesCount
         override val title = common.fzTitle

@@ -36,12 +36,11 @@ import libmupdf.fz_open_document
 import libmupdf.fz_pixmap
 import libmupdf.fz_register_document_handlers
 import libmupdf.fz_run_page
-import mobi.librera.mupdf.demo.createTempFile
 import platform.Foundation.NSLog
 import platform.posix.memcpy
 
 
-class CommonLib(document: ByteArray) {
+class CommonLib(tempFile: String) {
     private var fzContext: CPointer<fz_context>? = null;
     private var fzDocument: CPointer<fz_document>? = null;
     var fzPagesCount: Int = 0
@@ -52,13 +51,13 @@ class CommonLib(document: ByteArray) {
             fzContext = fz_new_context_imp(null, null, 1000u, FZ.FZ_VERSION)
             fz_register_document_handlers(fzContext)
 
-            val fileCache = createTempFile("",document)
-           // Logger.debug("fileCache $fileCache")
+            //val fileCache = createTempFile("",document)
+            // Logger.debug("fileCache $fileCache")
 
-           //val buffer = fz_new_buffer_from_data(fzContext,document.toUByteArray().refTo(0),document.size.convert())
+            //val buffer = fz_new_buffer_from_data(fzContext,document.toUByteArray().refTo(0),document.size.convert())
 
             //buffer = fz_keep_buffer(fzContext,buffer)
-            fzDocument = fz_open_document(fzContext,fileCache)
+            fzDocument = fz_open_document(fzContext, tempFile)
 
 
             //fzDocument = fz_open_document_with_buffer(fzContext, "epub", buffer)
