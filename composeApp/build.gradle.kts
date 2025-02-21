@@ -47,6 +47,11 @@ kotlin {
                 implementation(compose.components.uiToolingPreview)
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime.compose)
+
+                implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
+                implementation(libs.koin.core)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
             }
         }
 
@@ -57,6 +62,10 @@ kotlin {
                 implementation(project(":mupdf-android"))
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
+
+                implementation(libs.koin.android)
+                implementation(libs.koin.androidx.compose)
+
             }
         }
 

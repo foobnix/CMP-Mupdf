@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -39,8 +40,10 @@ import mobi.librera.mupdf.demo.fz.lib.FZ
 import mobi.librera.mupdf.demo.fz.lib.Logger
 import mobi.librera.mupdf.demo.fz.lib.MuDoc
 import mobi.librera.mupdf.demo.fz.lib.openDocument
+import mobi.librera.mupdf.presentation.BookModel
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 
 @Composable
@@ -63,6 +66,7 @@ fun App() {
 
 
 
+
         Column(
             Modifier.fillMaxSize().background(Color.LightGray).padding(top = 20.dp)
                 .onGloballyPositioned {
@@ -72,6 +76,8 @@ fun App() {
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+
+            ViewerScreen()
 
             Text(
                 "Mupdf Version: ${FZ.FZ_VERSION}",
@@ -164,6 +170,17 @@ fun App() {
                 }
             }
         }
+    }
+
+}
+
+
+@Composable
+fun ViewerScreen(viewModel:BookModel = koinViewModel()){
+    val bookState by viewModel.model.collectAsState()
+
+    Button(onClick = {viewModel.updateTitle("New title")}){
+        Text("Hello model ${bookState.title}")
     }
 
 }

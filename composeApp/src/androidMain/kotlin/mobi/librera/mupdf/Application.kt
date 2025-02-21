@@ -2,6 +2,8 @@ package mobi.librera.mupdf
 
 import android.app.Application
 import android.content.Context
+import mobi.librera.mupdf.di.initKoin
+import org.koin.android.ext.koin.androidContext
 
 
 open class Application : Application() {
@@ -13,6 +15,10 @@ open class Application : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        initKoin {
+            androidContext(this@Application)
+        }
         appContext = applicationContext
     }
 }

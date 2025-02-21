@@ -6,10 +6,12 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import mobi.librera.mupdf.di.initKoin
 
 
 @OptIn(ExperimentalStdlibApi::class)
 fun main() = application {
+    initKoin()
     Window(
         onCloseRequest = ::exitApplication,
         title = "Mupdf in Compose Multiplatform",
