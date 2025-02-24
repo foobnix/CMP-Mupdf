@@ -37,7 +37,7 @@ kotlin {
                 implementation("net.java.dev.jna:jna:5.15.0@aar")
             }
         }
-        val commonMain by getting{
+        val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -116,6 +116,7 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
