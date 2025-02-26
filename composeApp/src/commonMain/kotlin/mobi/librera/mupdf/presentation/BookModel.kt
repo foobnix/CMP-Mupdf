@@ -35,7 +35,7 @@ class BookModel() : ViewModel() {
     var muDoc: MuDoc = MuDoc.EmptyDoc
 
     init {
-        openBook("files/kotlin-reference.pdf")
+        //openBook("files/epub30-spec.epub")
 
     }
 
@@ -45,7 +45,7 @@ class BookModel() : ViewModel() {
         }
     }
 
-    fun openBook(path: String) {
+    fun openBook(path: String,width:Int, height:Int, fontSize:Int) {
         if (muDoc != MuDoc.EmptyDoc) {
             muDoc.close()
         }
@@ -66,7 +66,7 @@ class BookModel() : ViewModel() {
                     documentBytes = SystemFileSystem.source(filePath).buffered().readByteArray()
                 }
 
-                muDoc = openDocument(path.substringAfterLast("."), documentBytes)
+                muDoc = openDocument(path.substringAfterLast("."), documentBytes,width,height,fontSize)
                 _state.update {
                     it.copy(
                         pagesCount = muDoc.pageCount,
@@ -78,7 +78,7 @@ class BookModel() : ViewModel() {
         }
     }
 
-    fun openBook(bytes: ByteArray, path: String) {
+    fun openBook(bytes: ByteArray, path: String,width:Int, height:Int, fontSize:Int) {
         if (muDoc != MuDoc.EmptyDoc) {
             muDoc.close()
         }
@@ -90,7 +90,7 @@ class BookModel() : ViewModel() {
 
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                muDoc = openDocument(path.substringAfterLast("."), bytes)
+                muDoc = openDocument(path.substringAfterLast("."), bytes,width, height, fontSize)
                 _state.update {
                     it.copy(
                         pagesCount = muDoc.pageCount,

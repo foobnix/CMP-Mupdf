@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalResourceApi::class)
+
 package mobi.librera.mupdf.demo
 
 import androidx.compose.foundation.Image
@@ -32,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mobi.librera.mupdf.demo.fz.lib.Logger
 import mobi.librera.mupdf.presentation.BookModel
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 
 
@@ -44,11 +47,14 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
     var showFilePicker by remember { mutableStateOf(false) }
 
 
+
     Column(modifier = Modifier.fillMaxSize().padding(top = 20.dp).onGloballyPositioned {
         if (componentWidth == 0) {
             componentWidth = it.size.width
         }
     }) {
+
+
 
         Column(Modifier.padding(8.dp)) {
             Text("MuPDF Version: ${viewModel.mudpfVersion}")
@@ -61,7 +67,7 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
                         bytes = file.readBytes()
                     }
                     withContext(Dispatchers.Main) {
-                        viewModel.openBook(bytes, file.name) //TODO open as file not bytes
+                        viewModel.openBook(bytes, file.name,componentWidth,(componentWidth*2).toInt(),48) //TODO open as file not bytes
                     }
                 }
             }

@@ -11,24 +11,24 @@ import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Pixmap
 import platform.Foundation.NSLog
 
-internal actual fun openDocument(name:String, document: ByteArray): MuDoc {
+internal actual fun openDocument(name:String, document: ByteArray,width:Int, height:Int, fontSize:Int): MuDoc {
     val tempFile = MuFile.createTempFile(name, document)
-    val common = CommonLib(tempFile)
+    val common = CommonLib(tempFile,width, height, fontSize)
     return object : MuDoc() {
         override val pageCount = common.fzPagesCount
         override val title = common.fzTitle
 
         override fun renderPage(page: Int, pageWidth: Int): ImageBitmap {
-            val (array, width, height) = common.renderPage(page, pageWidth)
+            val (array, width1, height1) = common.renderPage(page, pageWidth)
 
 
-            val info = ImageInfo.makeN32(width, height, ColorAlphaType.OPAQUE, ColorSpace.sRGB)
+            val info = ImageInfo.makeN32(width1, height1, ColorAlphaType.OPAQUE, ColorSpace.sRGB)
             val buffer = Data.makeFromBytes(array)
 
             val p = Pixmap.make(
                 info,
                 buffer,
-                width * 4  // Row bytes (4 bytes per pixel)
+                width1 * 4  // Row bytes (4 bytes per pixel)
             )
 
             val makeFromPixmap = Image.makeFromPixmap(p)

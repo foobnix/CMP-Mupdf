@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-internal expect fun openDocument(name: String, document: ByteArray): MuDoc
+internal expect fun openDocument(name: String, document: ByteArray, width:Int, height:Int, fontSize:Int): MuDoc
 
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")

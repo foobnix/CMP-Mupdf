@@ -72,4 +72,10 @@ interface fz_library : Library {
     fun fz_drop_document(fzContext: Pointer?, fzDocument: Pointer?)
     fun fz_drop_context(fzContext: Pointer?)
 
+    fun fz_layout_document(fzContext: Pointer?, fzDocument: Pointer?, fl: Float, fl1: Float, fl2: Float)
+    fun fz_set_user_css(fzContext: Pointer?, s: String)
+    fun fz_set_use_document_css(fzContext: Pointer?, i: Int)
+
+
+
 }

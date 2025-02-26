@@ -8,7 +8,7 @@ import mobi.librera.mupdf.demo.fz.fz_matrix
 
 expect val fz: fz_library
 
-class CommonLib(tempFile: String) {
+class CommonLib(tempFile: String,width:Int, height:Int, fontSize:Int) {
     private var fzContext: Pointer? = null
     private var fzDocument: Pointer? = null
     var fzPagesCount: Int = 0
@@ -20,6 +20,9 @@ class CommonLib(tempFile: String) {
         fzContext = fz.fz_new_context_imp(null, null, 2560000, fzMupdfVersion)
         fz.fz_register_document_handlers(fzContext)
 
+        fz.fz_set_user_css(fzContext,"body, div,p {margin:1em !important;}")
+        fz.fz_set_use_document_css(fzContext, 1)
+
 
         //  val stream = fz.fz_open_memory(fzContext, document, document.size)
         // fzDocument = fz.fz_open_document_with_stream(fzContext, ".epub", stream)
@@ -29,6 +32,8 @@ class CommonLib(tempFile: String) {
         //fzDocument = fz.fz_open_document_with_buffer(fzContext, "epub", buffer)
 
         fzDocument = fz.fz_open_document(fzContext, tempFile)
+
+        fz.fz_layout_document(fzContext, fzDocument,width.toFloat(),height.toFloat(),fontSize.toFloat())
 
         fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
     }

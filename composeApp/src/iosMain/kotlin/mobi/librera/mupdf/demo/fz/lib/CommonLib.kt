@@ -27,6 +27,7 @@ import libmupdf.fz_drop_page
 import libmupdf.fz_drop_pixmap
 import libmupdf.fz_identity
 import libmupdf.fz_irect
+import libmupdf.fz_layout_document
 import libmupdf.fz_load_page
 import libmupdf.fz_matrix
 import libmupdf.fz_new_context_imp
@@ -36,11 +37,13 @@ import libmupdf.fz_open_document
 import libmupdf.fz_pixmap
 import libmupdf.fz_register_document_handlers
 import libmupdf.fz_run_page
+import libmupdf.fz_set_use_document_css
+import libmupdf.fz_set_user_css
 import platform.Foundation.NSLog
 import platform.posix.memcpy
 
 
-class CommonLib(tempFile: String) {
+class CommonLib(tempFile: String, width:Int, height:Int, fontSize:Int) {
     private var fzContext: CPointer<fz_context>? = null;
     private var fzDocument: CPointer<fz_document>? = null;
     var fzPagesCount: Int = 0
@@ -51,6 +54,10 @@ class CommonLib(tempFile: String) {
             fzContext = fz_new_context_imp(null, null, 1000u, FZ.FZ_VERSION)
             fz_register_document_handlers(fzContext)
 
+            fz_set_user_css(fzContext,"body, div,p {margin:1em !important;}")
+            fz_set_use_document_css(fzContext, 1)
+
+
             //val fileCache = createTempFile("",document)
             // Logger.debug("fileCache $fileCache")
 
@@ -58,6 +65,7 @@ class CommonLib(tempFile: String) {
 
             //buffer = fz_keep_buffer(fzContext,buffer)
             fzDocument = fz_open_document(fzContext, tempFile)
+            fz_layout_document(fzContext,fzDocument,width.toFloat(),height.toFloat(),fontSize.toFloat())
 
 
             //fzDocument = fz_open_document_with_buffer(fzContext, "epub", buffer)
