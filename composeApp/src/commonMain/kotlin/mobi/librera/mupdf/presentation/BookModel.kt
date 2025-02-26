@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
+import kotlinx.io.readByteArray
 import mobi.librera.mupdf.demo.fz.lib.MuDoc
 import mobi.librera.mupdf.demo.fz.lib.openDocument
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -18,7 +22,8 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 data class BookInfo(
     val title: String = "",
     val path: String = "",
-    val pagesCount: Int = 0
+    val pagesCount: Int = 0,
+    val currentPage: Int = 0
 )
 
 @OptIn(ExperimentalResourceApi::class)
@@ -30,26 +35,75 @@ class BookModel() : ViewModel() {
     var muDoc: MuDoc = MuDoc.EmptyDoc
 
     init {
+        openBook("files/kotlin-reference.pdf")
+
+    }
+
+    fun updateCurrentPage(page: Int) {
         _state.update {
-            it.copy(path = "files/kotlin-reference.pdf")
+            it.copy(currentPage = page)
+        }
+    }
+
+    fun openBook(path: String) {
+        if (muDoc != MuDoc.EmptyDoc) {
+            muDoc.close()
+        }
+
+        _state.update {
+            it.copy(path = path)
         }
         mudpfVersion = "123"
 
 
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val documentBytes = Res.readBytes("files/kotlin-reference.pdf")
-                muDoc = openDocument("kotlin-reference.pdf", documentBytes)
-                _state.update {
-                    it.copy(pagesCount = muDoc.pageCount)
+                val documentBytes: ByteArray
+                if (path.startsWith("files")) {
+                    documentBytes = Res.readBytes(path)
+                } else {
+                    val filePath = Path(path)
+                    documentBytes = SystemFileSystem.source(filePath).buffered().readByteArray()
                 }
+
+                muDoc = openDocument(path.substringAfterLast("."), documentBytes)
+                _state.update {
+                    it.copy(
+                        pagesCount = muDoc.pageCount,
+                        currentPage = 0
+                    )
+                }
+
             }
         }
+    }
 
+    fun openBook(bytes: ByteArray, path: String) {
+        if (muDoc != MuDoc.EmptyDoc) {
+            muDoc.close()
+        }
+
+        _state.update {
+            it.copy(path = path)
+        }
+        mudpfVersion = "123"
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                muDoc = openDocument(path.substringAfterLast("."), bytes)
+                _state.update {
+                    it.copy(
+                        pagesCount = muDoc.pageCount,
+                        currentPage = 0
+                    )
+                }
+
+            }
+        }
     }
 
     suspend fun renderPage(page: Int, width: Int): ImageBitmap {
-            return muDoc.renderPageSafe(page, width)
+        return muDoc.renderPageSafe(page, width)
     }
 
     fun updateTitle(title: String) {

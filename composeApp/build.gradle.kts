@@ -48,6 +48,14 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime.compose)
 
+                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.6.0")
+
+                implementation("io.github.vinceglb:filekit-core:0.8.8")
+                implementation("io.github.vinceglb:filekit-compose:0.8.8")
+
+
+
+
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.core)
@@ -145,6 +153,10 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "mobi.librera.mupdf.demo"
             packageVersion = "1.0.0"
+
+            linux {
+                modules("jdk.security.auth")
+            }
         }
     }
 }

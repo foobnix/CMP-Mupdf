@@ -23,9 +23,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.core.PickerMode
+import io.github.vinceglb.filekit.core.baseName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import mobi.librera.mupdf.demo.fz.lib.Logger
 import mobi.librera.mupdf.presentation.BookModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -33,10 +38,11 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
     val bookState by viewModel.model.collectAsState()
-    var sliderPosition by remember { mutableStateOf(0f) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var componentWidth by remember { mutableStateOf(0) }
+    var showFilePicker by remember { mutableStateOf(false) }
+
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 20.dp).onGloballyPositioned {
         if (componentWidth == 0) {
@@ -46,22 +52,37 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
 
         Column(Modifier.padding(8.dp)) {
             Text("MuPDF Version: ${viewModel.mudpfVersion}")
+
+            var bytes by remember { mutableStateOf(ByteArray(0)) }
+            val launcher = rememberFilePickerLauncher(mode = PickerMode.Single) { file ->
+                Logger.debug("Open file: ${file!!.baseName} ${file.path}")
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) {
+                        bytes = file.readBytes()
+                    }
+                    withContext(Dispatchers.Main) {
+                        viewModel.openBook(bytes, file.name) //TODO open as file not bytes
+                    }
+                }
+            }
+
+            Button(onClick = { launcher.launch() }) {
+                Text("Open file")
+            }
             Text("File: ${bookState.path}")
 
-            Button(onClick = { viewModel.updateTitle("New title") }) {
-                Text("Open file ${bookState.title}")
-            }
         }
 
         Slider(
-            value = sliderPosition,
+            value = bookState.currentPage.toFloat(),
             valueRange = 0f..bookState.pagesCount.toFloat(),
-            onValueChange = { sliderPosition = it },
+            onValueChange = { viewModel.updateCurrentPage(it.toInt()) },
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         )
 
-        LaunchedEffect(sliderPosition) {
-            listState.scrollToItem(sliderPosition.toInt())
+
+        LaunchedEffect(bookState.currentPage) {
+            listState.scrollToItem(bookState.currentPage)
         }
 
         LazyColumn(
