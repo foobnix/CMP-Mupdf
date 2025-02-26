@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import cmp_mupdf.composeapp.generated.resources.Res
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerMode
 import io.github.vinceglb.filekit.core.baseName
@@ -54,6 +55,18 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
         }
     }) {
 
+        if (componentWidth > 0) {
+            LaunchedEffect(Unit) {
+                viewModel.openBook(
+                    Res.readBytes("files/epub30-spec.epub"),
+                    "epub30-spec.epub",
+                    componentWidth,
+                    (componentWidth * 1.4f).toInt(),
+                    48
+                )
+            }
+        }
+
 
 
         Column(Modifier.padding(8.dp)) {
@@ -67,7 +80,13 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
                         bytes = file.readBytes()
                     }
                     withContext(Dispatchers.Main) {
-                        viewModel.openBook(bytes, file.name,componentWidth,(componentWidth*2).toInt(),48) //TODO open as file not bytes
+                        viewModel.openBook(
+                            bytes,
+                            file.name,
+                            componentWidth,
+                            (componentWidth * 2).toInt(),
+                            48
+                        )
                     }
                 }
             }
