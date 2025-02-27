@@ -64,8 +64,9 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
         if (componentWidth > 0) {
             LaunchedEffect(Unit) {
                 viewModel.openBook(
-                    Res.readBytes("files/epub30-spec.epub"),
-                    "epub30-spec.epub",
+                    //Res.readBytes("files/epub30-spec.epub"),
+                    Res.readBytes("files/kotlin-reference.pdf"),
+                    "epub30-spec.pdf",
                     componentWidth,
                     (componentWidth * 1.4f).toInt(),
                     bookState.fontSize

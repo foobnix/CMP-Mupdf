@@ -21,7 +21,7 @@ interface fz_library : Library {
     fun fz_open_memory(ctx: Pointer?, array: ByteArray, size: Int): Pointer
     fun fz_new_buffer_from_data(ctx: Pointer?, array: ByteArray, size: Int): Pointer
 
-    fun fz_keep_buffer(ctx: Pointer?,buffer:Pointer):Pointer
+    fun fz_keep_buffer(ctx: Pointer?, buffer: Pointer): Pointer
 
     fun fz_register_document_handlers(ctx: Pointer?): Pointer?
 
@@ -47,13 +47,8 @@ interface fz_library : Library {
 
     fun fz_new_draw_device(fzContext: Pointer?, fzMatrix: fz_matrix, fzPixmap: Pointer?): Pointer?
 
-    fun fz_run_page(
-        fzContext: Pointer?,
-        fzPage: Pointer?,
-        fzDev: Pointer?,
-        fzMatrix: fz_matrix?,
-        unknown: Pointer?
-    )
+    fun fz_run_page(fzContext: Pointer?, fzPage: Pointer?, fzDev: Pointer?, fzMatrix: fz_matrix?, unknown: Pointer?)
+
 
     fun fz_pixmap_height(fzContext: Pointer?, pixmap: Pointer?): Int
 
@@ -76,6 +71,8 @@ interface fz_library : Library {
     fun fz_set_user_css(fzContext: Pointer?, s: String)
     fun fz_set_use_document_css(fzContext: Pointer?, i: Int)
 
+    fun fz_load_outline(fzContext: Pointer?, fzDocument: Pointer?): fz_outline?
+    fun fz_drop_outline(fzContext: Pointer?, fzOutline: fz_outline?)
 
 
 }

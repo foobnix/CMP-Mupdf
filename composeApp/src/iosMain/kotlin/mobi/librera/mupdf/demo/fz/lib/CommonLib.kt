@@ -1,7 +1,3 @@
-@file:OptIn(
-    ExperimentalForeignApi::class
-)
-
 package mobi.librera.mupdf.demo.fz.lib
 
 import kotlinx.cinterop.CPointer
@@ -11,6 +7,7 @@ import kotlinx.cinterop.cValue
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.readValue
+import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
 import libmupdf.fz_bound_page
@@ -23,11 +20,13 @@ import libmupdf.fz_document
 import libmupdf.fz_drop_context
 import libmupdf.fz_drop_device
 import libmupdf.fz_drop_document
+import libmupdf.fz_drop_outline
 import libmupdf.fz_drop_page
 import libmupdf.fz_drop_pixmap
 import libmupdf.fz_identity
 import libmupdf.fz_irect
 import libmupdf.fz_layout_document
+import libmupdf.fz_load_outline
 import libmupdf.fz_load_page
 import libmupdf.fz_matrix
 import libmupdf.fz_new_context_imp
@@ -42,8 +41,8 @@ import libmupdf.fz_set_user_css
 import platform.Foundation.NSLog
 import platform.posix.memcpy
 
-
-class CommonLib(tempFile: String, width:Int, height:Int, fontSize:Int) {
+@OptIn(ExperimentalForeignApi::class)
+class CommonLib(tempFile: String, width: Int, height: Int, fontSize: Int) {
     private var fzContext: CPointer<fz_context>? = null;
     private var fzDocument: CPointer<fz_document>? = null;
     var fzPagesCount: Int = 0
@@ -54,7 +53,7 @@ class CommonLib(tempFile: String, width:Int, height:Int, fontSize:Int) {
             fzContext = fz_new_context_imp(null, null, 1000u, FZ.FZ_VERSION)
             fz_register_document_handlers(fzContext)
 
-            fz_set_user_css(fzContext,"body, div,p {margin:1em !important;}")
+            fz_set_user_css(fzContext, "body, div,p {margin:1em !important;}")
             fz_set_use_document_css(fzContext, 1)
 
 
@@ -65,7 +64,7 @@ class CommonLib(tempFile: String, width:Int, height:Int, fontSize:Int) {
 
             //buffer = fz_keep_buffer(fzContext,buffer)
             fzDocument = fz_open_document(fzContext, tempFile)
-            fz_layout_document(fzContext,fzDocument,width.toFloat(),height.toFloat(),fontSize.toFloat())
+            fz_layout_document(fzContext, fzDocument, width.toFloat(), height.toFloat(), fontSize.toFloat())
 
 
             //fzDocument = fz_open_document_with_buffer(fzContext, "epub", buffer)
@@ -81,9 +80,24 @@ class CommonLib(tempFile: String, width:Int, height:Int, fontSize:Int) {
             fzPagesCount = fz_count_pages(fzContext, fzDocument)
             NSLog(" Open Document Done")
 
+            var fzOutline = fz_load_outline(fzContext, fzDocument)
+            NSLog("Outline: $fzOutline")
+            while (fzOutline != null) {
+                val title = fzOutline.pointed.title?.toKString()
+                val uri = fzOutline.pointed.uri?.toKString()
+                val page = fzOutline.pointed.page.page
+                NSLog("Outline-title $title")
+                NSLog("Outline-title $page")
+                NSLog("Outline-uri $uri")
+                fzOutline = fzOutline.pointed.next
+            }
+            fz_drop_outline(fzContext, fzOutline)
+
+
         }
     }
 
+    @OptIn(ExperimentalForeignApi::class)
     fun close() = memScoped {
         fz_drop_document(fzContext, fzDocument)
         fz_drop_context(fzContext)

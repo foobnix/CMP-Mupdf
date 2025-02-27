@@ -4,6 +4,7 @@ import com.sun.jna.Pointer
 import mobi.librera.mupdf.demo.fz.fz_irect
 import mobi.librera.mupdf.demo.fz.fz_library
 import mobi.librera.mupdf.demo.fz.fz_matrix
+import mobi.librera.mupdf.demo.fz.fz_outline
 
 
 expect val fz: fz_library
@@ -36,7 +37,22 @@ class CommonLib(tempFile: String,width:Int, height:Int, fontSize:Int) {
         fz.fz_layout_document(fzContext, fzDocument,width.toFloat(),height.toFloat(),fontSize.toFloat())
 
         fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
+
+        println("fzPagesCount $fzPagesCount")
+
+        var fzOutline = fz.fz_load_outline(fzContext, fzDocument)
+
+        while (fzOutline != null) {
+            val title = fzOutline.title
+            val page = fzOutline.page?.page
+            println("Outline-title: $title page: $page")
+            fzOutline= fzOutline.next
+        }
+
+        fz.fz_drop_outline(fzContext, fzOutline)
+
     }
+
 
     fun close() {
         fz.fz_drop_document(fzContext, fzDocument)
