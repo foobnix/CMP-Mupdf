@@ -23,7 +23,8 @@ data class BookInfo(
     val title: String = "",
     val path: String = "",
     val pagesCount: Int = 0,
-    val currentPage: Int = 0
+    val currentPage: Int = 0,
+    val fontSize: Int = 38,
 )
 
 @OptIn(ExperimentalResourceApi::class)
@@ -39,13 +40,19 @@ class BookModel() : ViewModel() {
 
     }
 
+    fun updateFontSize(fontSize: Int) {
+        _state.update {
+            it.copy(fontSize = fontSize)
+        }
+    }
+
     fun updateCurrentPage(page: Int) {
         _state.update {
             it.copy(currentPage = page)
         }
     }
 
-    fun openBook(path: String,width:Int, height:Int, fontSize:Int) {
+    fun openBook(path: String, width: Int, height: Int, fontSize: Int) {
         if (muDoc != MuDoc.EmptyDoc) {
             muDoc.close()
         }
@@ -66,7 +73,13 @@ class BookModel() : ViewModel() {
                     documentBytes = SystemFileSystem.source(filePath).buffered().readByteArray()
                 }
 
-                muDoc = openDocument(path.substringAfterLast("."), documentBytes,width,height,fontSize)
+                muDoc = openDocument(
+                    path.substringAfterLast("."),
+                    documentBytes,
+                    width,
+                    height,
+                    fontSize
+                )
                 _state.update {
                     it.copy(
                         pagesCount = muDoc.pageCount,
@@ -78,10 +91,14 @@ class BookModel() : ViewModel() {
         }
     }
 
-    fun openBook(bytes: ByteArray, path: String,width:Int, height:Int, fontSize:Int) {
+
+
+
+    fun openBook(bytes: ByteArray, path: String, width: Int, height: Int, fontSize: Int) {
         if (muDoc != MuDoc.EmptyDoc) {
             muDoc.close()
         }
+
 
         _state.update {
             it.copy(path = path)
@@ -90,7 +107,7 @@ class BookModel() : ViewModel() {
 
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                muDoc = openDocument(path.substringAfterLast("."), bytes,width, height, fontSize)
+                muDoc = openDocument(path.substringAfterLast("."), bytes, width, height, fontSize)
                 _state.update {
                     it.copy(
                         pagesCount = muDoc.pageCount,

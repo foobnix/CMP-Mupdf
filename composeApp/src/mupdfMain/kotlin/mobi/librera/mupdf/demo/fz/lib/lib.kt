@@ -20,7 +20,7 @@ class CommonLib(tempFile: String,width:Int, height:Int, fontSize:Int) {
         fzContext = fz.fz_new_context_imp(null, null, 2560000, fzMupdfVersion)
         fz.fz_register_document_handlers(fzContext)
 
-        fz.fz_set_user_css(fzContext,"body, div,p {margin:1em !important;}")
+        fz.fz_set_user_css(fzContext,"body, div,p {margin:0em !important;}")
         fz.fz_set_use_document_css(fzContext, 1)
 
 

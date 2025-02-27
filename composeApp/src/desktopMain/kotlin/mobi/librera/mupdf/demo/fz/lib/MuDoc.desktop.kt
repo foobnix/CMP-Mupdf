@@ -52,3 +52,4 @@ actual object Logger {
         logger.log(Level.SEVERE, message)
     }
 }
+
