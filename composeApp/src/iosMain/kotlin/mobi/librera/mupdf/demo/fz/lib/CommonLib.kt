@@ -84,11 +84,8 @@ class CommonLib(tempFile: String, width: Int, height: Int, fontSize: Int) {
             NSLog("Outline: $fzOutline")
             while (fzOutline != null) {
                 val title = fzOutline.pointed.title?.toKString()
-                val uri = fzOutline.pointed.uri?.toKString()
                 val page = fzOutline.pointed.page.page
-                NSLog("Outline-title $title")
-                NSLog("Outline-title $page")
-                NSLog("Outline-uri $uri")
+                NSLog("Outline-title $title page: $page")
                 fzOutline = fzOutline.pointed.next
             }
             fz_drop_outline(fzContext, fzOutline)

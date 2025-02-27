@@ -1,6 +1,8 @@
 package mobi.librera.mupdf.demo.fz
 
+import com.sun.jna.Pointer
 import com.sun.jna.Structure
+import mobi.librera.mupdf.demo.fz.lib.MemoryStructure
 
 /**
  *
@@ -18,14 +20,16 @@ import com.sun.jna.Structure
  */
 
 @Structure.FieldOrder("refs", "title", "uri", "page","x","y","next","down","is_open")
-class fz_outline: Structure(), Structure.ByReference {
+class fz_outline: MemoryStructure(), Structure.ByReference {
     @JvmField var refs: Int = 0
     @JvmField var title: String= ""
     @JvmField var uri: String =""
     @JvmField var page: fz_location? = null
     @JvmField var x:Float = 0f
     @JvmField var y:Float =0f
-    @JvmField var next: fz_outline? = null
-    @JvmField var down: fz_outline? =null
+    @JvmField var next: Pointer? = null
+    @JvmField var down: Pointer? =null
     @JvmField var is_open:Int = 0
+
+
 }

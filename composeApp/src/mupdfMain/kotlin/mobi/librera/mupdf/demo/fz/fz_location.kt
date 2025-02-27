@@ -13,4 +13,6 @@ import com.sun.jna.Structure
 class fz_location : Structure(), Structure.ByValue {
     @JvmField var chapter: Int = 0
     @JvmField var page: Int = 0
+
+
 }

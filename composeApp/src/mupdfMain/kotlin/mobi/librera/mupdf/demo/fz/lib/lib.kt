@@ -9,7 +9,7 @@ import mobi.librera.mupdf.demo.fz.fz_outline
 
 expect val fz: fz_library
 
-class CommonLib(tempFile: String,width:Int, height:Int, fontSize:Int) {
+class CommonLib(tempFile: String, width: Int, height: Int, fontSize: Int) {
     private var fzContext: Pointer? = null
     private var fzDocument: Pointer? = null
     var fzPagesCount: Int = 0
@@ -21,7 +21,7 @@ class CommonLib(tempFile: String,width:Int, height:Int, fontSize:Int) {
         fzContext = fz.fz_new_context_imp(null, null, 2560000, fzMupdfVersion)
         fz.fz_register_document_handlers(fzContext)
 
-        fz.fz_set_user_css(fzContext,"body, div,p {margin:0em !important;}")
+        fz.fz_set_user_css(fzContext, "body, div,p {margin:0em !important;}")
         fz.fz_set_use_document_css(fzContext, 1)
 
 
@@ -34,7 +34,7 @@ class CommonLib(tempFile: String,width:Int, height:Int, fontSize:Int) {
 
         fzDocument = fz.fz_open_document(fzContext, tempFile)
 
-        fz.fz_layout_document(fzContext, fzDocument,width.toFloat(),height.toFloat(),fontSize.toFloat())
+        fz.fz_layout_document(fzContext, fzDocument, width.toFloat(), height.toFloat(), fontSize.toFloat())
 
         fzPagesCount = fz.fz_count_pages(fzContext, fzDocument)
 
@@ -45,12 +45,41 @@ class CommonLib(tempFile: String,width:Int, height:Int, fontSize:Int) {
         while (fzOutline != null) {
             val title = fzOutline.title
             val page = fzOutline.page?.page
-            println("Outline-title: $title page: $page")
-            fzOutline= fzOutline.next
+
+            println("Outline-title: $title page: ${page}")
+
+            //fzOutline = fzOutline.next.toStructure(fz_outline::class.java)
+            //fzOutline = fzOutline.next.toStructure1<fz_outline>()
+            fzOutline = fzOutline.next.toStructure2 { fz_outline() }
+
         }
 
         fz.fz_drop_outline(fzContext, fzOutline)
 
+    }
+
+    private fun <T : MemoryStructure> Pointer?.toStructure(clazz: Class<T>): T? {
+        if (this == null) return null
+        val structure = clazz.getDeclaredConstructor().newInstance()
+        structure.useMemory(this)
+        structure.read()
+        return structure
+    }
+
+    inline fun <reified T : MemoryStructure> Pointer?.toStructure1(): T? {
+        if (this == null) return null
+        val structure = T::class.java.getDeclaredConstructor().newInstance()
+        structure.useMemory(this)
+        structure.read()
+        return structure
+    }
+
+    inline fun <reified T : MemoryStructure> Pointer?.toStructure2(creator: () -> T): T? {
+        if (this == null) return null
+        val structure = creator()
+        structure.useMemory(this)
+        structure.read()
+        return structure
     }
 
 
