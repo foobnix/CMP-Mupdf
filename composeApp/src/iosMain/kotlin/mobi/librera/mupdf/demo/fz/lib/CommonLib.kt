@@ -80,18 +80,36 @@ class CommonLib(tempFile: String, width: Int, height: Int, fontSize: Int) {
             fzPagesCount = fz_count_pages(fzContext, fzDocument)
             NSLog(" Open Document Done")
 
-            var fzOutline = fz_load_outline(fzContext, fzDocument)
-            NSLog("Outline: $fzOutline")
-            while (fzOutline != null) {
-                val title = fzOutline.pointed.title?.toKString()
-                val page = fzOutline.pointed.page.page
-                NSLog("Outline-title $title page: $page")
-                fzOutline = fzOutline.pointed.next
-            }
-            fz_drop_outline(fzContext, fzOutline)
+
 
 
         }
+    }
+    @OptIn(ExperimentalForeignApi::class)
+    fun getOutline(): List<Outline> = memScoped{
+        val result = mutableListOf<Outline>()
+
+        var fzOutline = fz_load_outline(fzContext, fzDocument)
+        val initOutline = fzOutline
+
+        NSLog("Outline: $fzOutline")
+
+        val level = 0
+        while (fzOutline != null) {
+            val title = fzOutline.pointed.title?.toKString()!!
+            val page = fzOutline.pointed.page.page
+            val uri = fzOutline.pointed.uri?.toKString()!!
+
+            NSLog("Outline-title $title page: $page")
+
+            result.add(Outline(title, page, uri, level))
+
+            fzOutline = fzOutline.pointed.next
+        }
+        fz_drop_outline(fzContext, initOutline)
+
+        return result
+
     }
 
     @OptIn(ExperimentalForeignApi::class)

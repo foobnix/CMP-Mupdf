@@ -3,17 +3,23 @@
 package mobi.librera.mupdf.demo
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.Card
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -27,11 +33,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import cmp_mupdf.composeapp.generated.resources.Res
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerMode
@@ -41,6 +49,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mobi.librera.mupdf.demo.fz.lib.Logger
+import mobi.librera.mupdf.demo.fz.lib.Outline
 import mobi.librera.mupdf.presentation.BookModel
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
@@ -83,7 +92,7 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
                 Logger.debug("Open file: ${file!!.baseName} ${file.path}")
 
                 coroutineScope.launch {
-                    var bytes:ByteArray
+                    var bytes: ByteArray
                     withContext(Dispatchers.IO) {
                         bytes = file.readBytes()
                     }
@@ -107,47 +116,81 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
         }
 
 
-
         var number by remember { mutableStateOf(bookState.fontSize) }
 
-        LaunchedEffect(number){
+        LaunchedEffect(number) {
             //viewModel.updateFontSize(number)
-           // viewModel.reOpenBook()
+            // viewModel.reOpenBook()
         }
 
         var inputValue by remember { mutableStateOf(number.toString()) }
-            Row {
-                Button(
-                    onClick = {
+        Row {
+            Button(
+                onClick = {
                     number--
                     inputValue = number.toString() // Update input field
                 }) {
-                    Text("-")
+                Text("-")
+            }
+
+            OutlinedTextField(
+                value = inputValue,
+                modifier = Modifier.width(80.dp),
+                onValueChange = {
+                    inputValue = it
+                    number = it.toIntOrNull() ?: 0 // Update number if valid
+                },
+                label = { Text("Font size") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            Button(onClick = {
+                number++
+                inputValue = number.toString() // Update input field
+            }) {
+                Text("+")
+            }
+            Spacer(modifier = Modifier.width(20.dp))
+            var showOutLine by remember { mutableStateOf(false) }
+            Button(onClick = { showOutLine = true }) {
+                Text("Outline")
+            }
+            if (showOutLine) {
+                var outline by remember { mutableStateOf(emptyList<Outline>()) }
+                LaunchedEffect(Unit) {
+                    outline = viewModel.getOutline()
                 }
 
-                OutlinedTextField(
-                    value = inputValue,
-                    modifier = Modifier.width(80.dp),
-                    onValueChange = {
-                        inputValue = it
-                        number = it.toIntOrNull() ?: 0 // Update number if valid
-                    },
-                    label = { Text("Font size") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-
-                Button(onClick = {
-                    number++
-                    inputValue = number.toString() // Update input field
-                }) {
-                    Text("+")
+                Dialog(onDismissRequest = { showOutLine = false }) {
+                    Card(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+                        if (outline.isNotEmpty()) {
+                            LazyColumn {
+                                items(outline, key = { it.url }) { item ->
+                                    Column(modifier = Modifier.fillMaxWidth().padding(4.dp).clickable{
+                                        showOutLine = false
+                                        viewModel.updateCurrentPage(item.page)
+                                    }) {
+                                        Row(modifier = Modifier.fillMaxWidth()) {
+                                            Text(item.title, maxLines = 1, modifier = Modifier.weight(1f))
+                                            Text("${item.page+1}", modifier = Modifier.wrapContentWidth())
+                                        }
+                                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color.Gray))
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
+        }
 
 
-        Row(verticalAlignment = Alignment.CenterVertically,) {
-            Text(text = "${bookState.currentPage+1}", modifier = Modifier.wrapContentWidth())
+
+
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "${bookState.currentPage + 1}", modifier = Modifier.wrapContentWidth())
             Slider(
                 value = bookState.currentPage.toFloat(),
                 valueRange = 0f..bookState.pagesCount.toFloat(),

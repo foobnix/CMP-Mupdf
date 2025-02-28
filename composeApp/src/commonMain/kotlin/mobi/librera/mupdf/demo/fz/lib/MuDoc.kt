@@ -13,11 +13,22 @@ object FZ {
 
 val mutex = Mutex()
 
+data class Outline(
+    val title:String,
+    val page:Int,
+    val url:String,
+    val level:Int,
+)
+
+
+
 abstract class MuDoc {
     abstract val pageCount: Int
     abstract val title: String
     abstract fun renderPage(page: Int, pageWidth: Int): ImageBitmap
     abstract fun close()
+
+    abstract suspend fun getOutline():List<Outline>
 
     suspend fun renderPageSafe(page: Int, pageWidth: Int): ImageBitmap {
         mutex.withLock {
@@ -31,5 +42,7 @@ abstract class MuDoc {
         override fun renderPage(page: Int, pageWidth: Int): ImageBitmap = ImageBitmap(1, 1)
 
         override fun close() {}
+        override suspend fun getOutline(): List<Outline>  = emptyList()
+
     }
 }

@@ -40,23 +40,34 @@ class CommonLib(tempFile: String, width: Int, height: Int, fontSize: Int) {
 
         println("fzPagesCount $fzPagesCount")
 
-        var fzOutline = fz.fz_load_outline(fzContext, fzDocument)
 
+    }
+
+    fun getOutline(): List<Outline> {
+        var fzOutline = fz.fz_load_outline(fzContext, fzDocument)
+        val initOutline = fzOutline
+
+        val result = mutableListOf<Outline>()
+
+        var level = 0
         while (fzOutline != null) {
             val title = fzOutline.title
-            val page = fzOutline.page?.page
+            val page = fzOutline.page?.page!!
+            val uri = fzOutline.uri
 
-            println("Outline-title: $title page: ${page}")
+            println("Outline-title: $title page: $page")
 
+            result.add(Outline(title, page, uri, level))
             //fzOutline = fzOutline.next.toStructure(fz_outline::class.java)
             //fzOutline = fzOutline.next.toStructure1<fz_outline>()
             fzOutline = fzOutline.next.toStructure2 { fz_outline() }
-
         }
 
-        fz.fz_drop_outline(fzContext, fzOutline)
+        //fz.fz_drop_outline(fzContext, initOutline) crash on desktop
+        return result
 
     }
+
 
     private fun <T : MemoryStructure> Pointer?.toStructure(clazz: Class<T>): T? {
         if (this == null) return null
@@ -147,5 +158,7 @@ class CommonLib(tempFile: String, width: Int, height: Int, fontSize: Int) {
         return Triple(array, pWidth, pHeight)
 
     }
+
+
 }
 

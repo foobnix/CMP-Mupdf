@@ -28,6 +28,8 @@ internal actual fun openDocument(name:String, document: ByteArray,width:Int, hei
         override fun close() {
             common.close()
         }
+
+        override suspend fun getOutline(): List<Outline> = common.getOutline()
     }
 }
 

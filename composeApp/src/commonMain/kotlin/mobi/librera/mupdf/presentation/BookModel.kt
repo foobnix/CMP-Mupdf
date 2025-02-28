@@ -16,6 +16,7 @@ import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import kotlinx.io.readByteArray
 import mobi.librera.mupdf.demo.fz.lib.MuDoc
+import mobi.librera.mupdf.demo.fz.lib.Outline
 import mobi.librera.mupdf.demo.fz.lib.openDocument
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
@@ -91,6 +92,9 @@ class BookModel() : ViewModel() {
         }
     }
 
+    suspend fun getOutline():List<Outline>{
+        return muDoc.getOutline()
+    }
 
 
 
