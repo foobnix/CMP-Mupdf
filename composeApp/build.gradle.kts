@@ -32,11 +32,7 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        val mupdfMain by creating {
-            dependencies {
-                implementation("net.java.dev.jna:jna:5.15.0@aar")
-            }
-        }
+
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
@@ -62,10 +58,15 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
             }
         }
+        val mupdfMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("net.java.dev.jna:jna:5.15.0@aar")
+            }
+        }
 
         val androidMain by getting {
             dependsOn(mupdfMain)
-            dependsOn(commonMain)
             dependencies {
                 implementation(project(":mupdf-android"))
                 implementation(compose.preview)
@@ -79,7 +80,6 @@ kotlin {
 
         val desktopMain by getting {
             dependsOn(mupdfMain)
-            dependsOn(commonMain)
             dependencies {
                 implementation("net.java.dev.jna:jna:5.15.0")
                 implementation(project(":mupdf-jvm"))
