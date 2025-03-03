@@ -31,8 +31,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -45,7 +48,10 @@ import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerMode
 import io.github.vinceglb.filekit.core.baseName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mobi.librera.mupdf.demo.fz.lib.Logger
@@ -55,10 +61,10 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 
 
+@OptIn(FlowPreview::class)
 @Composable
-fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
+fun ViewerScreenRoot(viewModel: BookModel = koinViewModel()) {
     val bookState by viewModel.model.collectAsState()
-    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var componentWidth by remember { mutableStateOf(0) }
 
@@ -166,13 +172,13 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
                         if (outline.isNotEmpty()) {
                             LazyColumn {
                                 items(outline, key = { it.url }) { item ->
-                                    Column(modifier = Modifier.fillMaxWidth().padding(4.dp).clickable{
+                                    Column(modifier = Modifier.fillMaxWidth().padding(4.dp).clickable {
                                         showOutLine = false
                                         viewModel.updateCurrentPage(item.page)
                                     }) {
                                         Row(modifier = Modifier.fillMaxWidth()) {
                                             Text(item.title, maxLines = 1, modifier = Modifier.weight(1f))
-                                            Text("${item.page+1}", modifier = Modifier.wrapContentWidth())
+                                            Text("${item.page + 1}", modifier = Modifier.wrapContentWidth())
                                         }
                                         Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color.Gray))
                                     }
@@ -186,39 +192,76 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
         }
 
 
-
+        var sliderPosition by remember { mutableStateOf(bookState.currentPage.toFloat()) }
+        val focusRequester = remember { FocusRequester() }
 
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "${bookState.currentPage + 1}", modifier = Modifier.wrapContentWidth())
             Slider(
-                value = bookState.currentPage.toFloat(),
+                value = sliderPosition,
                 valueRange = 0f..bookState.pagesCount.toFloat(),
-                onValueChange = { viewModel.updateCurrentPage(it.toInt()) },
-                modifier = Modifier.weight(1f).padding(16.dp)
+                onValueChange = { sliderPosition = it },
+                onValueChangeFinished = {
+                    //viewModel.updateCurrentPage(sliderPosition.toInt())
+                    focusRequester.requestFocus()
+                },
+                modifier = Modifier.weight(1f).padding(16.dp).focusRequester(focusRequester)
             )
             Text(text = "${bookState.pagesCount}", modifier = Modifier.wrapContentWidth())
         }
 
+        LaunchedEffect(sliderPosition) {
+            snapshotFlow { sliderPosition }
+                .debounce(100)
+                .collect { newValue ->
+                    viewModel.updateCurrentPage(newValue.toInt())
+                }
+        }
 
-        LaunchedEffect(bookState.currentPage) {
-            listState.scrollToItem(bookState.currentPage)
+            DisplayPDFView(bookState.pagesCount, bookState.currentPage,
+                renderPage = { viewModel.renderPage(it, width = componentWidth) },
+                onPageChanged = { viewModel.updateCurrentPage(it) })
+
+        }
+
+    }
+
+    @Composable
+    fun DisplayPDFView(
+        pagesCount: Int,
+        currentPage: Int,
+        renderPage: suspend (number: Int) -> ImageBitmap,
+        onPageChanged: (Int) -> Unit
+    ) {
+        val listState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
+
+        LaunchedEffect(currentPage) {
+            listState.scrollToItem(currentPage)
+        }
+
+        LaunchedEffect(listState) {
+            snapshotFlow { listState.firstVisibleItemIndex }
+                .distinctUntilChanged()
+                .collect { index ->
+                    onPageChanged(index)
+                }
         }
 
         LazyColumn(
-            modifier = Modifier.weight(1f).padding(4.dp),
+            modifier = Modifier.fillMaxWidth().padding(4.dp),
             state = listState,
             userScrollEnabled = true,
         ) {
-            items(bookState.pagesCount, key = { index -> index }) { number ->
+            items(pagesCount, key = { index -> index }) { number ->
                 var image by remember(number) { mutableStateOf(ImageBitmap(1, 1)) }
 
                 remember(number) {
                     coroutineScope.launch(Dispatchers.IO) {
-                        image = viewModel.renderPage(number, componentWidth)
+                        image = renderPage(number)
                     }
                 }
-
                 Image(
                     image,
                     contentScale = ContentScale.FillWidth,
@@ -229,7 +272,4 @@ fun ViewerScreen(viewModel: BookModel = koinViewModel()) {
             }
         }
 
-
     }
-
-}

@@ -10,6 +10,6 @@ import mobi.librera.mupdf.presentation.BookModel
 @Composable
 fun ViewerScreenPreview() {
         MaterialTheme {
-                ViewerScreen(BookModel())
+                //ViewerScreen(BookModel())
         }
 }
