@@ -14,7 +14,7 @@ class CommonLib(tempFile: String, width: Int, height: Int, fontSize: Int) {
     private var fzDocument: Pointer? = null
     var fzPagesCount: Int = 0
     var fzTitle: String = "title"
-    var fzMupdfVersion: String = "1.26.12"
+    var fzMupdfVersion: String = "1.27.0"
 
     init {
         println("Open document")

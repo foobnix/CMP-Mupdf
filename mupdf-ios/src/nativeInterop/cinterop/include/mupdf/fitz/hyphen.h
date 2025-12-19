@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Artifex Software, Inc.
+// Copyright (C) 2025 Artifex Software, Inc.
 //
 // This file is part of MuPDF.
 //
@@ -20,35 +20,39 @@
 // Artifex Software, Inc., 39 Mesa Street, Suite 108A, San Francisco,
 // CA 94129, USA, for further information.
 
-// This header allows people to easily build HTML-based document handlers.
-
-#ifndef MUPDF_HTML_HTML_H
-#define MUPDF_HTML_HTML_H
+#ifndef MUPDF_FITZ_HYPHEN_H
+#define MUPDF_FITZ_HYPHEN_H
 
 #include "mupdf/fitz/system.h"
+#include "mupdf/fitz/types.h"
 #include "mupdf/fitz/context.h"
-#include "mupdf/fitz/document.h"
+#include "mupdf/fitz/text.h"
 
-/*
-	HTML types required
-*/
-typedef struct fz_html_s fz_html;
-typedef struct fz_html_font_set_s fz_html_font_set;
-typedef struct fz_html_hyph_set_s fz_html_hyph_set;
+typedef struct fz_hyphenator fz_hyphenator;
+typedef struct fz_hyph_trie fz_hyph_trie;
 
-typedef struct
+struct fz_hyphenator {
+	fz_pool *pool;
+	int node_count;
+	int pattern_count;
+	fz_hyph_trie *trie;
+};
+
+struct fz_hyph_trie
 {
-	const char *format_name;
-	fz_buffer *(*convert_to_html)(fz_context *ctx, fz_html_font_set *set, fz_buffer *buf, fz_archive *dir, const char *user_css);
-	int try_xml;
-	int try_html5;
-	int patch_mobi;
-} fz_htdoc_format_t;
+	char *patval; /* null unless leaf */
+	short patlen; /* num values - 1 in pattern */
+	int ch; /* char to branch on (not used for leaves) */
+	fz_hyph_trie *child;
+	fz_hyph_trie *next;
+};
 
-fz_document *fz_htdoc_open_document_with_buffer(fz_context *ctx, fz_archive *dir, fz_buffer *buf, const fz_htdoc_format_t *format);
+fz_hyphenator *fz_new_hyphenator_from_stream(fz_context *ctx, fz_stream *stm);
+void fz_register_hyphenator(fz_context *ctx, fz_text_language lang, fz_hyphenator *hyph);
 
-fz_document *fz_htdoc_open_document_with_stream_and_dir(fz_context *ctx, fz_stream *stm, fz_archive *dir, const fz_htdoc_format_t *format);
+void fz_hyphenate_word(fz_context *ctx, fz_hyphenator *hyph, const char *input, int input_size, char *output, int output_size);
+void fz_drop_hyphenator(fz_context *ctx, fz_hyphenator *hyph);
 
+fz_hyphenator *fz_lookup_hyphenator(fz_context *ctx, fz_text_language lang);
 
-
-#endif /* MUPDF_HTML_HTML_H */
+#endif

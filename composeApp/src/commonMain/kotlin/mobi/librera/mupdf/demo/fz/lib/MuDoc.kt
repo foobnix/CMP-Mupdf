@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.withLock
 internal expect fun openDocument(name: String, document: ByteArray, width: Int, height: Int, fontSize: Int): MuDoc
 
 object FZ {
-    val FZ_VERSION = "1.26.12"
+    val FZ_VERSION = "1.27.0"
     //val FZ_VERSION = "1.23.7"
 }
 
