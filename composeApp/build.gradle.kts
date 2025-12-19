@@ -33,6 +33,23 @@ kotlin {
 
     sourceSets {
 
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        val androidUnitTest by getting {
+            dependencies {
+                implementation("junit:junit:4.13.2")
+            }
+        }
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation("androidx.test.ext:junit:1.3.0")
+                implementation("androidx.test.espresso:espresso-core:3.7.0")
+            }
+        }
+
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)

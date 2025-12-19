@@ -12,6 +12,7 @@ interface fz_library : Library {
         version: String
     ): Pointer
 
+    fun fz_clone_context(ctx: Pointer?): Pointer
     fun fz_open_document(ctx: Pointer?, filename: String): Pointer
 
     fun fz_open_document_with_stream(ctx: Pointer?, magic: String, stream: Pointer): Pointer
