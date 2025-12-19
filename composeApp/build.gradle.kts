@@ -32,24 +32,6 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-        val androidUnitTest by getting {
-            dependencies {
-                implementation("junit:junit:4.13.2")
-            }
-        }
-        val androidInstrumentedTest by getting {
-            dependencies {
-                implementation("androidx.test.ext:junit:1.3.0")
-                implementation("androidx.test.espresso:espresso-core:3.7.0")
-            }
-        }
-
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
@@ -61,7 +43,7 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime.compose)
 
-                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.6.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.8.2")
 
                 implementation("io.github.vinceglb:filekit-core:0.8.8")
                 implementation("io.github.vinceglb:filekit-compose:0.8.8")
@@ -72,13 +54,13 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.core)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             }
         }
         val mupdfMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation("net.java.dev.jna:jna:5.15.0@aar")
+                implementation("net.java.dev.jna:jna:5.18.1@aar")
             }
         }
 
